@@ -8,3 +8,4 @@ class RegistrationStateResponseSerializer(serializers.Serializer):
     base_role = serializers.CharField(allow_null=True)
     status = serializers.CharField()
     next_question_key = serializers.CharField(allow_null=True, required=False)
+    question = serializers.JSONField(allow_null=True)

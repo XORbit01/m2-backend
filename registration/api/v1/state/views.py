@@ -1,12 +1,14 @@
-from core.models import Person
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from core.models import Person
 from registration.enums import RegistrationStep
 from registration.models import RegistrationSession
-from registration.serializers.state.response import RegistrationStateResponseSerializer
+from registration.serializers.state.response import \
+    RegistrationStateResponseSerializer
+from registration.step_definitions import get_question_definition
 
 
 class RegistrationStateView(APIView):
@@ -32,13 +34,18 @@ class RegistrationStateView(APIView):
         label = dict(RegistrationStep.choices).get(
             session.current_step, session.current_step
         )
+        question_def = get_question_definition(session.current_step)
+        next_key = (
+            question_def.get("question_key") if question_def else _next_question_key(session.current_step)
+        )
         data = {
             "current_step": session.current_step,
             "current_step_label": label,
             "payload": session.payload,
             "base_role": session.base_role,
             "status": session.status,
-            "next_question_key": _next_question_key(session.current_step),
+            "next_question_key": next_key,
+            "question": question_def,
         }
         serializer = RegistrationStateResponseSerializer(data=data)
         serializer.is_valid(raise_exception=True)

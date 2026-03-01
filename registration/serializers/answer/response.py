@@ -6,3 +6,4 @@ class RegistrationAnswerResponseSerializer(serializers.Serializer):
     payload = serializers.JSONField()
     base_role = serializers.CharField(allow_null=True)
     status = serializers.CharField()
+    question = serializers.JSONField(allow_null=True)

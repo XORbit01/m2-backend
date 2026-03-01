@@ -1,15 +1,17 @@
 import logging
 
-from core.models import Person
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from core.models import Person
 from registration.enums import RegistrationStatus, RegistrationStep
 from registration.models import RegistrationSession
-from registration.serializers.submit.request import RegistrationSubmitRequestSerializer
-from registration.serializers.submit.response import RegistrationSubmitResponseSerializer
+from registration.serializers.submit.request import \
+    RegistrationSubmitRequestSerializer
+from registration.serializers.submit.response import \
+    RegistrationSubmitResponseSerializer
 
 log = logging.getLogger(__name__)
 
