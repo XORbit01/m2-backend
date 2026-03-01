@@ -34,6 +34,12 @@ class RegistrationStateAPITestCase(TestCase):
         self.assertIsNone(data["base_role"])
         self.assertEqual(data["status"], "PENDING")
         self.assertEqual(data["next_question_key"], "finished_master")
+        self.assertIn("question", data)
+        self.assertIsNotNone(data["question"])
+        self.assertEqual(data["question"]["question_type"], "yes_no")
+        self.assertEqual(data["question"]["question_key"], "finished_master")
+        self.assertIn("label", data["question"])
+        self.assertIn("options", data["question"])
 
     def test_get_state_with_existing_session_returns_same_session(self):
         user, person = _create_user_with_person("test2@example.com")
@@ -52,6 +58,9 @@ class RegistrationStateAPITestCase(TestCase):
         data = response.json()
         self.assertEqual(data["current_step"], RegistrationStep.Q2_INTERNSHIP.value)
         self.assertEqual(data["payload"]["student"]["major_id"], 1)
+        self.assertIn("question", data)
+        self.assertEqual(data["question"]["question_key"], "has_internship")
+        self.assertEqual(data["question"]["question_type"], "yes_no")
 
     def test_get_state_user_without_person_returns_403(self):
         user = User.objects.create_user(
