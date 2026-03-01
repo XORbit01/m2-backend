@@ -74,3 +74,24 @@ def get_base_role_from_q1(answer: dict) -> BaseRole | None:
     if finished_master is False:
         return BaseRole.STUDENT
     return None
+
+
+def get_required_answer_key(current_step: str) -> str | tuple[str, ...] | None:
+    """
+    Return the request key(s) required for the current step.
+    Step is only valid if the corresponding key is present in the request.
+    Returns None for steps that don't require a specific key (e.g. SUBMIT).
+    """
+    required = {
+        RegistrationStep.Q1_MASTER_STATUS.value: "finished_master",
+        RegistrationStep.COLLECT_STUDENT_DATA.value: "student_data",
+        RegistrationStep.COLLECT_ALUMNI_DATA.value: "alumni_data",
+        RegistrationStep.Q2_INTERNSHIP.value: ("has_internship",),
+        RegistrationStep.Q2_INTERNSHIP_ALUMNI.value: ("had_internship",),
+        RegistrationStep.COLLECT_INTERNSHIP.value: "internship_data",
+        RegistrationStep.Q3_PHD.value: ("is_phd_student",),
+        RegistrationStep.COLLECT_PHD.value: "phd_data",
+        RegistrationStep.Q4_WORK.value: ("is_working",),
+        RegistrationStep.COLLECT_WORK.value: "work_data",
+    }
+    return required.get(current_step)
