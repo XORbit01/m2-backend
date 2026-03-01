@@ -4,11 +4,17 @@ Import views from here; definitions live in api/v1/<endpoint>/views.py.
 """
 
 from registration.api.v1.answer.views import RegistrationAnswerView
+from registration.api.v1.coordinator.views import (CoordinatorAcceptView,
+                                                   CoordinatorPendingListView,
+                                                   CoordinatorRejectView)
 from registration.api.v1.state.views import RegistrationStateView
 from registration.api.v1.submit.views import RegistrationSubmitView
 
 __all__ = [
-    "RegistrationStateView",
+    "CoordinatorAcceptView",
+    "CoordinatorPendingListView",
+    "CoordinatorRejectView",
     "RegistrationAnswerView",
+    "RegistrationStateView",
     "RegistrationSubmitView",
 ]
