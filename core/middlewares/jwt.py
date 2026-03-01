@@ -42,7 +42,8 @@ class JwtAuthenticationMiddleware(MiddlewareMixin):
             return None
 
         try:
-            from rest_framework_simplejwt.authentication import JWTAuthentication
+            from rest_framework_simplejwt.authentication import \
+                JWTAuthentication
 
             auth = JWTAuthentication()
             result = auth.authenticate(request)
