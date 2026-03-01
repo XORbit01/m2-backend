@@ -1,0 +1,58 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}Create test user{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">Home</a>
+  &rsaquo; Create test user
+</div>
+{% endblock %}
+
+{% block content %}
+<h1>Create test user</h1>
+<p>Creates a User + Person for testing login and registration flow. Use these credentials in Postman or the API.</p>
+
+{% if error %}
+  <ul class="messagelist"><li class="error">{{ error }}</li></ul>
+{% endif %}
+
+{% if created %}
+  <div class="messagelist">
+    <li class="success">User created successfully.</li>
+  </div>
+  <div style="margin: 1em 0; padding: 1em; background: #f8f8f8; border: 1px solid #ddd;">
+    <p><strong>Credentials (use for login / testing):</strong></p>
+    <table>
+      <tr><td>Email</td><td><code>{{ email }}</code></td></tr>
+      <tr><td>Password</td><td><code>{{ password }}</code></td></tr>
+      <tr><td>Full name</td><td>{{ full_name }}</td></tr>
+      <tr><td>User ID</td><td>{{ user_id }}</td></tr>
+      <tr><td>Person ID</td><td>{{ person_id }}</td></tr>
+    </table>
+  </div>
+  <p><a href="{% url 'admin_create_test_user' %}">Create another test user</a></p>
+{% else %}
+  <form method="post" style="max-width: 400px;">
+    {% csrf_token %}
+    <fieldset class="module aligned">
+      <div class="form-row">
+        <label for="id_email">Email</label>
+        <input type="email" name="email" id="id_email" value="{{ email }}" required style="width: 100%;">
+      </div>
+      <div class="form-row">
+        <label for="id_password">Password</label>
+        <input type="text" name="password" id="id_password" value="{{ password }}" required style="width: 100%;">
+      </div>
+      <div class="form-row">
+        <label for="id_full_name">Full name</label>
+        <input type="text" name="full_name" id="id_full_name" value="{{ full_name }}" style="width: 100%;">
+      </div>
+    </fieldset>
+    <div style="margin-top: 1em;">
+      <input type="submit" value="Create test user" class="default">
+    </div>
+  </form>
+{% endif %}
+{% endblock %}

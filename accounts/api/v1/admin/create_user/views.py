@@ -4,10 +4,11 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from accounts.serializers.admin.create_user.request import \
+    CreateUserRequestSerializer
+from accounts.serializers.admin.create_user.response import \
+    CreateUserResponseSerializer
 from core.models import Person
-
-from accounts.serializers.admin.create_user.request import CreateUserRequestSerializer
-from accounts.serializers.admin.create_user.response import CreateUserResponseSerializer
 
 User = get_user_model()
 
