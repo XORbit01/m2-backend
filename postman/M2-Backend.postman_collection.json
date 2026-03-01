@@ -1,0 +1,294 @@
+{
+  "info": {
+    "name": "M2 Backend",
+    "description": "M2 Master's student registration API. Login first to get access_token; use Authorization: Bearer {{access_token}} for protected endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {"key": "base_url", "value": "http://localhost:8000"},
+    {"key": "email", "value": "test@example.com"},
+    {"key": "password", "value": "testpass123"},
+    {"key": "access_token", "value": ""},
+    {"key": "refresh_token", "value": ""}
+  ],
+  "item": [
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"student@example.com\",\n  \"password\": \"TempPass123\",\n  \"full_name\": \"John Doe\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/admin/users/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "admin", "users", ""]
+            },
+            "description": "Admin only. Creates User + Person with email and temp password. Login as admin first."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/login/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "login", ""]
+            },
+            "description": "Login with email + password. Returns access_token and refresh_token. Use access_token in Authorization header for protected endpoints.",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "var jsonData = pm.response.json();",
+                    "if (jsonData.access_token) pm.collectionVariables.set(\"access_token\", jsonData.access_token);",
+                    "if (jsonData.refresh_token) pm.collectionVariables.set(\"refresh_token\", jsonData.refresh_token);"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "Token Refresh",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/token/refresh/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "token", "refresh", ""]
+            },
+            "description": "Refresh access token using refresh_token.",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "var jsonData = pm.response.json();",
+                    "if (jsonData.access) pm.collectionVariables.set(\"access_token\", jsonData.access);"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/me/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "me", ""]
+            },
+            "description": "Requires JWT. Returns current user + registration_complete, current_step."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Registration",
+      "item": [
+        {
+          "name": "Get Registration State",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {
+              "raw": "{{base_url}}/api/v1/registration/state/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "registration", "state", ""]
+            },
+            "description": "Requires auth. Returns current step and payload."
+          }
+        },
+        {
+          "name": "Answer - Q1: Student Path",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"finished_master\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/registration/answer/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "registration", "answer", ""]
+            }
+          }
+        },
+        {
+          "name": "Answer - Q1: Alumni Path",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"finished_master\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/registration/answer/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "registration", "answer", ""]
+            }
+          }
+        },
+        {
+          "name": "Answer - Collect Student Data",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"student_data\": {\n    \"major_id\": 1,\n    \"student_number\": \"M2-2024-001\",\n    \"cohort_year\": \"2024\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/registration/answer/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "registration", "answer", ""]
+            }
+          }
+        },
+        {
+          "name": "Answer - Q2 Internship: Yes",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"has_internship\": true,\n  \"internship_data\": {\n    \"institution_id\": 1,\n    \"department\": \"Research Lab\",\n    \"country\": \"France\",\n    \"start_date\": \"2024-01-01\",\n    \"end_date\": \"2024-06-30\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/registration/answer/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "registration", "answer", ""]
+            }
+          }
+        },
+        {
+          "name": "Answer - Q2 Internship: No",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "body": {"mode": "raw", "raw": "{\n  \"has_internship\": false\n}"},
+            "url": {
+              "raw": "{{base_url}}/api/v1/registration/answer/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "registration", "answer", ""]
+            }
+          }
+        },
+        {
+          "name": "Answer - Q2 Internship Alumni: No",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "body": {"mode": "raw", "raw": "{\n  \"had_internship\": false\n}"},
+            "url": {
+              "raw": "{{base_url}}/api/v1/registration/answer/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "registration", "answer", ""]
+            }
+          }
+        },
+        {
+          "name": "Answer - Q3 PhD: Yes",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_phd_student\": true,\n  \"phd_data\": {\n    \"institution_id\": 1,\n    \"field\": \"Machine Learning\",\n    \"lab_name\": \"AI Lab\",\n    \"start_date\": \"2024-09-01\",\n    \"end_date\": null\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/registration/answer/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "registration", "answer", ""]
+            }
+          }
+        },
+        {
+          "name": "Answer - Q3 PhD: No",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "body": {"mode": "raw", "raw": "{\n  \"is_phd_student\": false\n}"},
+            "url": {
+              "raw": "{{base_url}}/api/v1/registration/answer/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "registration", "answer", ""]
+            }
+          }
+        },
+        {
+          "name": "Answer - Q4 Work: Yes",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_working\": true,\n  \"work_data\": {\n    \"institution_id\": 1,\n    \"title\": \"Data Scientist\",\n    \"country\": \"France\",\n    \"start_date\": \"2024-01-01\",\n    \"end_date\": null\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/registration/answer/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "registration", "answer", ""]
+            }
+          }
+        },
+        {
+          "name": "Answer - Q4 Work: No",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "body": {"mode": "raw", "raw": "{\n  \"is_working\": false\n}"},
+            "url": {
+              "raw": "{{base_url}}/api/v1/registration/answer/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "registration", "answer", ""]
+            }
+          }
+        },
+        {
+          "name": "Submit Registration",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "body": {"mode": "raw", "raw": "{}"},
+            "url": {
+              "raw": "{{base_url}}/api/v1/registration/submit/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "registration", "submit", ""]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
