@@ -18,7 +18,7 @@ def _get_registration_status(user):
         session = person.registration_session
     except RegistrationSession.DoesNotExist:
         return False, "Q1_MASTER_STATUS", person.id
-    if session.status == "SUBMITTED":
+    if session.status == "ACCEPTED":
         return True, None, person.id
     return False, session.current_step, person.id
 

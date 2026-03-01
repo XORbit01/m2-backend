@@ -7,7 +7,6 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from accounts.serializers.login.request import LoginRequestSerializer
 from accounts.serializers.login.response import LoginResponseSerializer
 
-
 User = get_user_model()
 
 
@@ -24,7 +23,7 @@ def _get_registration_status(user):
         session = person.registration_session
     except RegistrationSession.DoesNotExist:
         return False, "Q1_MASTER_STATUS", person.id
-    if session.status == "SUBMITTED":
+    if session.status == "ACCEPTED":
         return True, None, person.id
     return False, session.current_step, person.id
 

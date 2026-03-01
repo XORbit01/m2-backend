@@ -27,3 +27,4 @@ class BaseRole(models.TextChoices):
 class RegistrationStatus(models.TextChoices):
     PENDING = "PENDING", "Pending"
     SUBMITTED = "SUBMITTED", "Submitted"
+    ACCEPTED = "ACCEPTED", "Accepted"
