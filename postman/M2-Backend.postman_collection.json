@@ -1,8 +1,18 @@
 {
   "info": {
     "name": "M2 Backend",
-    "description": "M2 Master's student registration API. Login first to get access_token; use Authorization: Bearer {{access_token}} for protected endpoints.",
+    "description": "M2 Master's student registration API. Run Login first — tokens are auto-saved. All protected requests use Bearer auth automatically.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
   },
   "variable": [
     {"key": "base_url", "value": "http://localhost:8000"},
@@ -19,7 +29,7 @@
           "name": "Create User",
           "request": {
             "method": "POST",
-            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"student@example.com\",\n  \"password\": \"TempPass123\",\n  \"full_name\": \"John Doe\"\n}"
@@ -40,6 +50,7 @@
         {
           "name": "Login",
           "request": {
+            "auth": {"type": "noauth"},
             "method": "POST",
             "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
@@ -57,9 +68,16 @@
                 "listen": "test",
                 "script": {
                   "exec": [
+                    "if (pm.response.code !== 200) return;",
                     "var jsonData = pm.response.json();",
-                    "if (jsonData.access_token) pm.collectionVariables.set(\"access_token\", jsonData.access_token);",
-                    "if (jsonData.refresh_token) pm.collectionVariables.set(\"refresh_token\", jsonData.refresh_token);"
+                    "if (jsonData.access_token) {",
+                    "    pm.collectionVariables.set(\"access_token\", jsonData.access_token);",
+                    "    try { pm.environment.set(\"access_token\", jsonData.access_token); } catch (e) {}",
+                    "}",
+                    "if (jsonData.refresh_token) {",
+                    "    pm.collectionVariables.set(\"refresh_token\", jsonData.refresh_token);",
+                    "    try { pm.environment.set(\"refresh_token\", jsonData.refresh_token); } catch (e) {}",
+                    "}"
                   ],
                   "type": "text/javascript"
                 }
@@ -70,6 +88,7 @@
         {
           "name": "Token Refresh",
           "request": {
+            "auth": {"type": "noauth"},
             "method": "POST",
             "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
@@ -87,8 +106,12 @@
                 "listen": "test",
                 "script": {
                   "exec": [
+                    "if (pm.response.code !== 200) return;",
                     "var jsonData = pm.response.json();",
-                    "if (jsonData.access) pm.collectionVariables.set(\"access_token\", jsonData.access);"
+                    "if (jsonData.access) {",
+                    "    pm.collectionVariables.set(\"access_token\", jsonData.access);",
+                    "    try { pm.environment.set(\"access_token\", jsonData.access); } catch (e) {}",
+                    "}"
                   ],
                   "type": "text/javascript"
                 }
@@ -100,7 +123,7 @@
           "name": "Me",
           "request": {
             "method": "GET",
-            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "header": [{"key": "Content-Type", "value": "application/json"}],
             "url": {
               "raw": "{{base_url}}/api/v1/auth/me/",
               "host": ["{{base_url}}"],
@@ -113,25 +136,26 @@
     },
     {
       "name": "Registration",
+      "description": "Question flow: 1) GET state → use response.question (question_key, question_type, label, options/fields) to render the form. 2) POST answer with body key = question.question_key. 3) Response includes question for the next step; repeat until question.question_type is \"submit\". 4) POST submit with {} to finish. Validation: major_id must be an existing Major id; institution_name must match an existing Institution name.",
       "item": [
         {
           "name": "Get Registration State",
           "request": {
             "method": "GET",
-            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "header": [{"key": "Content-Type", "value": "application/json"}],
             "url": {
               "raw": "{{base_url}}/api/v1/registration/state/",
               "host": ["{{base_url}}"],
               "path": ["api", "v1", "registration", "state", ""]
             },
-            "description": "Requires auth. Returns current step and payload."
+            "description": "Requires auth. Returns current_step, payload, and question (question_key, question_type, label, options or fields) for the current step. Use question to render the form (yes_no, select, object, submit, etc.)."
           }
         },
         {
           "name": "Answer - Q1: Student Path",
           "request": {
             "method": "POST",
-            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"finished_master\": false\n}"
@@ -140,14 +164,15 @@
               "raw": "{{base_url}}/api/v1/registration/answer/",
               "host": ["{{base_url}}"],
               "path": ["api", "v1", "registration", "answer", ""]
-            }
+            },
+            "description": "Body key must match question.question_key. Response includes question for next step (e.g. student_data object with fields)."
           }
         },
         {
           "name": "Answer - Q1: Alumni Path",
           "request": {
             "method": "POST",
-            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"finished_master\": true\n}"
@@ -163,7 +188,7 @@
           "name": "Answer - Collect Student Data",
           "request": {
             "method": "POST",
-            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"student_data\": {\n    \"major_id\": 1,\n    \"student_number\": \"M2-2024-001\",\n    \"cohort_year\": \"2024\"\n  }\n}"
@@ -179,10 +204,10 @@
           "name": "Answer - Q2 Internship: Yes",
           "request": {
             "method": "POST",
-            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"has_internship\": true,\n  \"internship_data\": {\n    \"institution_id\": 1,\n    \"department\": \"Research Lab\",\n    \"country\": \"France\",\n    \"start_date\": \"2024-01-01\",\n    \"end_date\": \"2024-06-30\"\n  }\n}"
+              "raw": "{\n  \"has_internship\": true,\n  \"internship_data\": {\n    \"institution_name\": \"Sorbonne University\",\n    \"department\": \"Research Lab\",\n    \"country\": \"France\",\n    \"start_date\": \"2024-01-01\",\n    \"end_date\": \"2024-06-30\"\n  }\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/v1/registration/answer/",
@@ -195,7 +220,7 @@
           "name": "Answer - Q2 Internship: No",
           "request": {
             "method": "POST",
-            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {"mode": "raw", "raw": "{\n  \"has_internship\": false\n}"},
             "url": {
               "raw": "{{base_url}}/api/v1/registration/answer/",
@@ -208,7 +233,7 @@
           "name": "Answer - Q2 Internship Alumni: No",
           "request": {
             "method": "POST",
-            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {"mode": "raw", "raw": "{\n  \"had_internship\": false\n}"},
             "url": {
               "raw": "{{base_url}}/api/v1/registration/answer/",
@@ -221,10 +246,10 @@
           "name": "Answer - Q3 PhD: Yes",
           "request": {
             "method": "POST",
-            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"is_phd_student\": true,\n  \"phd_data\": {\n    \"institution_id\": 1,\n    \"field\": \"Machine Learning\",\n    \"lab_name\": \"AI Lab\",\n    \"start_date\": \"2024-09-01\",\n    \"end_date\": null\n  }\n}"
+              "raw": "{\n  \"is_phd_student\": true,\n  \"phd_data\": {\n    \"institution_name\": \"Sorbonne University\",\n    \"field\": \"Machine Learning\",\n    \"lab_name\": \"AI Lab\",\n    \"start_date\": \"2024-09-01\",\n    \"end_date\": null\n  }\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/v1/registration/answer/",
@@ -237,7 +262,7 @@
           "name": "Answer - Q3 PhD: No",
           "request": {
             "method": "POST",
-            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {"mode": "raw", "raw": "{\n  \"is_phd_student\": false\n}"},
             "url": {
               "raw": "{{base_url}}/api/v1/registration/answer/",
@@ -250,10 +275,10 @@
           "name": "Answer - Q4 Work: Yes",
           "request": {
             "method": "POST",
-            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"is_working\": true,\n  \"work_data\": {\n    \"institution_id\": 1,\n    \"title\": \"Data Scientist\",\n    \"country\": \"France\",\n    \"start_date\": \"2024-01-01\",\n    \"end_date\": null\n  }\n}"
+              "raw": "{\n  \"is_working\": true,\n  \"work_data\": {\n    \"institution_name\": \"Sorbonne University\",\n    \"title\": \"Data Scientist\",\n    \"country\": \"France\",\n    \"start_date\": \"2024-01-01\",\n    \"end_date\": null\n  }\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/v1/registration/answer/",
@@ -266,7 +291,7 @@
           "name": "Answer - Q4 Work: No",
           "request": {
             "method": "POST",
-            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {"mode": "raw", "raw": "{\n  \"is_working\": false\n}"},
             "url": {
               "raw": "{{base_url}}/api/v1/registration/answer/",
@@ -279,13 +304,119 @@
           "name": "Submit Registration",
           "request": {
             "method": "POST",
-            "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {"mode": "raw", "raw": "{}"},
             "url": {
               "raw": "{{base_url}}/api/v1/registration/submit/",
               "host": ["{{base_url}}"],
               "path": ["api", "v1", "registration", "submit", ""]
-            }
+            },
+            "description": "Call when current_step is SUBMIT or question.question_type is \"submit\". Sets status to SUBMITTED (awaiting major coordinator approval). registration_complete is true only after coordinator accepts."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Registration Coordinator",
+      "description": "Major coordinator (MajorCoordinator) can list pending submissions for their major(s), accept (final stage) or reject (session deleted). Requires auth as a user whose Person is a MajorCoordinator for the session's major.",
+      "item": [
+        {
+          "name": "List Pending",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{base_url}}/api/v1/registration/coordinator/pending/", "host": ["{{base_url}}"], "path": ["api", "v1", "registration", "coordinator", "pending", ""]},
+            "description": "Returns sessions with status SUBMITTED for majors the current user coordinates. Response: { sessions: [{ session_id, person_id, full_name, email, base_role, payload, created_at }] }."
+          }
+        },
+        {
+          "name": "Accept",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{}"},
+            "url": {"raw": "{{base_url}}/api/v1/registration/coordinator/1/accept/", "host": ["{{base_url}}"], "path": ["api", "v1", "registration", "coordinator", "1", "accept", ""]},
+            "description": "POST with session_id in path. Sets session status to ACCEPTED (final stage). Only coordinator for that major."
+          }
+        },
+        {
+          "name": "Reject",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{}"},
+            "url": {"raw": "{{base_url}}/api/v1/registration/coordinator/1/reject/", "host": ["{{base_url}}"], "path": ["api", "v1", "registration", "coordinator", "1", "reject", ""]},
+            "description": "POST with session_id in path. Deletes the registration session. Only coordinator for that major."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Registration test path - Student",
+      "description": "Run these in order to test full student path (no internship, not working): 1 Login, 2 Get State, 3–6 Answer steps, 7 Submit. Uses {{email}}/{{password}}; create test user first if needed.",
+      "item": [
+        {
+          "name": "1. Login",
+          "request": {
+            "auth": {"type": "noauth"},
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/auth/login/", "host": ["{{base_url}}"], "path": ["api", "v1", "auth", "login", ""]},
+            "event": [{"listen": "test", "script": {"exec": ["if (pm.response.code !== 200) return;", "var d = pm.response.json();", "if (d.access_token) pm.collectionVariables.set(\"access_token\", d.access_token);", "if (d.refresh_token) pm.collectionVariables.set(\"refresh_token\", d.refresh_token);"], "type": "text/javascript"}}]
+          }
+        },
+        {
+          "name": "2. Get state",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{base_url}}/api/v1/registration/state/", "host": ["{{base_url}}"], "path": ["api", "v1", "registration", "state", ""]}
+          }
+        },
+        {
+          "name": "3. Answer Q1 student",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"finished_master\": false\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/registration/answer/", "host": ["{{base_url}}"], "path": ["api", "v1", "registration", "answer", ""]}
+          }
+        },
+        {
+          "name": "4. Answer student_data",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"student_data\": {\n    \"major_id\": 1,\n    \"student_number\": \"M2-2024-001\",\n    \"cohort_year\": \"2024\"\n  }\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/registration/answer/", "host": ["{{base_url}}"], "path": ["api", "v1", "registration", "answer", ""]}
+          }
+        },
+        {
+          "name": "5. Answer has_internship false",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"has_internship\": false\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/registration/answer/", "host": ["{{base_url}}"], "path": ["api", "v1", "registration", "answer", ""]}
+          }
+        },
+        {
+          "name": "6. Answer is_working false",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"is_working\": false\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/registration/answer/", "host": ["{{base_url}}"], "path": ["api", "v1", "registration", "answer", ""]}
+          }
+        },
+        {
+          "name": "7. Submit",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{}"},
+            "url": {"raw": "{{base_url}}/api/v1/registration/submit/", "host": ["{{base_url}}"], "path": ["api", "v1", "registration", "submit", ""]}
           }
         }
       ]
