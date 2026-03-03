@@ -20,18 +20,6 @@ class StudentProfile(models.Model):
         return f"Student {self.person} ({self.student_number})"
 
 
-class SupervisorProfile(models.Model):
-    person = models.OneToOneField(Person, on_delete=models.CASCADE, related_name="supervisor_profile")
-    title = models.CharField(max_length=128)
-    department = models.CharField(max_length=255)
-
-    class Meta:
-        db_table = "profiles_supervisor_profile"
-
-    def __str__(self):
-        return f"{self.title} {self.person}"
-
-
 class AlumniProfile(models.Model):
     person = models.OneToOneField(Person, on_delete=models.CASCADE, related_name="alumni_profile")
     graduation_year = models.IntegerField()
@@ -48,6 +36,7 @@ class TeacherProfile(models.Model):
     person = models.OneToOneField(Person, on_delete=models.CASCADE, related_name="teacher_profile")
     title = models.CharField(max_length=128)
     department = models.CharField(max_length=255)
+    is_supervisor = models.BooleanField(default=False)
 
     class Meta:
         db_table = "profiles_teacher_profile"

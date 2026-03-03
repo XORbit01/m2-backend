@@ -61,3 +61,49 @@ class MeAPITestCase(TestCase):
         self.assertEqual(data["email"], "me@example.com")
         self.assertEqual(data["person_id"], person.id)
         self.assertFalse(data["registration_complete"])
+        self.assertIn("roles", data)
+        self.assertIn("profile", data)
+        self.assertEqual(data["roles"], [])
+        self.assertIsNotNone(data["profile"])
+        self.assertEqual(data["profile"]["full_name"], "Test")
+
+    def test_me_student_returns_role_and_profile(self):
+        from profiles.models import StudentProfile
+
+        user, person = _create_user_with_person("student@example.com")
+        StudentProfile.objects.create(
+            person=person, student_number="M2-2024-001", current_status="ACTIVE"
+        )
+        self.client.force_authenticate(user=user)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn("student", data["roles"])
+        self.assertIsNotNone(data["profile"])
+        self.assertEqual(data["profile"]["full_name"], "Test")
+        self.assertEqual(data["profile"]["student_number"], "M2-2024-001")
+        self.assertEqual(data["profile"]["current_status"], "ACTIVE")
+        self.assertEqual(data["profile"]["enrollments"], [])
+        self.assertEqual(data["profile"]["courses"], [])
+
+    def test_me_teacher_returns_role_and_taught_courses(self):
+        from profiles.models import TeacherProfile
+
+        user, person = _create_user_with_person("teacher@example.com")
+        TeacherProfile.objects.create(
+            person=person,
+            title="Professor",
+            department="CS",
+            is_supervisor=False,
+        )
+        self.client.force_authenticate(user=user)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn("teacher", data["roles"])
+        self.assertIsNotNone(data["profile"])
+        self.assertEqual(data["profile"]["full_name"], "Test")
+        self.assertEqual(data["profile"]["title"], "Professor")
+        self.assertEqual(data["profile"]["department"], "CS")
+        self.assertFalse(data["profile"]["is_supervisor"])
+        self.assertEqual(data["profile"]["taught_courses"], [])
