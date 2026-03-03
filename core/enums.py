@@ -38,3 +38,18 @@ class ExperienceStatus(models.TextChoices):
     ONGOING = "ONGOING", "Ongoing"
     COMPLETED = "COMPLETED", "Completed"
     STOPPED = "STOPPED", "Stopped"
+
+
+class SupervisionStatus(models.TextChoices):
+    PENDING = "PENDING", "Pending"
+    APPROVED = "APPROVED", "Approved"
+    REJECTED = "REJECTED", "Rejected"
+
+
+class PostAudienceRole(models.TextChoices):
+    GENERAL = "GENERAL", "General"
+    STUDENTS = "STUDENTS", "Students"
+    SUPERVISORS = "SUPERVISORS", "Supervisors"
+    TEACHERS = "TEACHERS", "Teachers"
+    ALUMNI = "ALUMNI", "Alumni"
+    GUESTS = "GUESTS", "Guests"

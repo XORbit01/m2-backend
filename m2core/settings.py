@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     "experience",
     "enrollment",
     "academic",
+    "community",
+    "supervision",
     "publications",
     "registration",
 ]
@@ -124,10 +126,14 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
+# Static files (CSS, JavaScript)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = "static/"
+
+# Media files (uploaded content such as avatars)
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",

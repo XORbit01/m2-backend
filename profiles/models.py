@@ -43,3 +43,18 @@ class TeacherProfile(models.Model):
 
     def __str__(self):
         return f"{self.title} {self.person}"
+
+
+class GuestProfile(models.Model):
+    person = models.OneToOneField(
+        Person,
+        on_delete=models.CASCADE,
+        related_name="guest_profile",
+    )
+    note = models.CharField(max_length=255, blank=True, default="")
+
+    class Meta:
+        db_table = "profiles_guest_profile"
+
+    def __str__(self):
+        return f"Guest {self.person}"

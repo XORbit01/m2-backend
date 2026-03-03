@@ -7,7 +7,7 @@ from core.models import Person
 from enrollment.models import Enrollment
 from programs.helpers.coordinator import get_coordinated_major_ids
 from programs.models import CourseOffering, Major
-from profiles.models import AlumniProfile, StudentProfile, TeacherProfile
+from profiles.models import AlumniProfile, GuestProfile, StudentProfile, TeacherProfile
 
 
 def get_me_roles(person):
@@ -24,6 +24,8 @@ def get_me_roles(person):
         roles.append("alumni")
     if TeacherProfile.objects.filter(person=person).exists():
         roles.append("teacher")
+    if GuestProfile.objects.filter(person=person).exists():
+        roles.append("guest")
     if get_coordinated_major_ids(person):
         roles.append("coordinator")
     return roles
