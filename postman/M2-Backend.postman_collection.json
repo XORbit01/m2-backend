@@ -43,6 +43,36 @@
           }
         },
         {
+          "name": "Update Experience",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"COMPLETED\",\n  \"idea\": \"Updated idea\",\n  \"keywords\": \"updated\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/experience/me/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "experience", "me", "1", ""]
+            },
+            "description": "Requires JWT. Updates an existing Experience that belongs to the current person. Replace 1 with experience id. Currently allows updating status, idea, keywords, and links."
+          }
+        },
+        {
+          "name": "Delete Experience",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {
+              "raw": "{{base_url}}/api/v1/experience/me/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "experience", "me", "1", ""]
+            },
+            "description": "Requires JWT. Deletes an existing Experience that belongs to the current person. Replace 1 with experience id."
+          }
+        }
+        {
           "name": "Create Teacher",
           "request": {
             "method": "POST",
@@ -147,6 +177,46 @@
               "path": ["api", "v1", "auth", "me", ""]
             },
             "description": "Requires JWT. Returns current user, registration_complete, current_step, roles (student, teacher, coordinator, alumni), and role-based profile (full_name, enrollments, courses, taught_courses, coordinated_majors, etc.)."
+          }
+        },
+        {
+          "name": "Profile Settings - Get",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/profile/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "profile", ""]
+            },
+            "description": "Requires JWT. Returns basic profile settings for the current user: first_name, last_name, email, avatar_url."
+          }
+        },
+        {
+          "name": "Profile Settings - Update",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Content-Type", "value": "multipart/form-data"}
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {"key": "first_name", "value": "Updated", "type": "text"},
+                {"key": "last_name", "value": "Name", "type": "text"},
+                {
+                  "key": "avatar",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/profile/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "profile", ""]
+            },
+            "description": "Requires JWT. Updates basic profile settings (first_name, last_name and/or avatar). Send multipart/form-data with optional first_name, last_name and avatar file."
           }
         }
       ]
@@ -334,6 +404,42 @@
       ]
     },
     {
+      "name": "Experience",
+      "description": "API for experiences (internships, PhD, work, other) linked to the current person.",
+      "item": [
+        {
+          "name": "My Experiences",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {
+              "raw": "{{base_url}}/api/v1/experience/me/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "experience", "me", ""]
+            },
+            "description": "Requires JWT. Returns all Experience records for the current person (internships, PhD, work, other) as created from registration or via this API."
+          }
+        },
+        {
+          "name": "Create Experience",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"STAGE\",\n  \"status\": \"PLANNED\",\n  \"institution_id\": 1,\n  \"title\": \"New internship\",\n  \"idea\": \"Optional notes\",\n  \"start_date\": \"2025-01-01\",\n  \"end_date\": null\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/experience/me/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "experience", "me", ""]
+            },
+            "description": "Requires JWT. Creates a new Experience record for the current person. type must be one of STAGE, DOCTORATE, RESEARCH, JOB, OTHER; status one of PLANNED, ONGOING, COMPLETED, STOPPED; institution_id must reference an existing Institution."
+          }
+        }
+      ]
+    },
+    {
       "name": "Programs Coordinator",
       "description": "Coordinator manages course offerings for their major(s): list offerings, list teachers, assign teacher to offering.",
       "item": [
@@ -396,6 +502,163 @@
             "header": [{"key": "Content-Type", "value": "application/json"}],
             "url": {"raw": "{{base_url}}/api/v1/programs/teacher/courses/1/students/", "host": ["{{base_url}}"], "path": ["api", "v1", "programs", "teacher", "courses", "1", "students", ""]},
             "description": "Returns students enrolled in the course offering's cohort. Teacher must be assigned to that offering. Replace 1 with offering_id. Response: { students: [{ person_id, full_name, email, student_number }] }."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Supervision",
+      "description": "Student can request a teacher as supervisor; teacher can approve or reject.",
+      "item": [
+        {
+          "name": "Student - Create Request",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"teacher_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/supervision/student/requests/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "supervision", "student", "requests", ""]
+            },
+            "description": "Authenticated student. POST creates a supervision request for the given teacher (person_id). GET on the same URL lists all supervisions for the current student."
+          }
+        },
+        {
+          "name": "Student - Cancel Request",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{}"},
+            "url": {
+              "raw": "{{base_url}}/api/v1/supervision/student/requests/1/cancel/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "supervision", "student", "requests", "1", "cancel", ""]
+            },
+            "description": "Authenticated student. Cancels a pending supervision request they created. Replace 1 with supervision id."
+          }
+        },
+        {
+          "name": "Teacher - List Requests",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {
+              "raw": "{{base_url}}/api/v1/supervision/teacher/requests/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "supervision", "teacher", "requests", ""]
+            },
+            "description": "Authenticated teacher. Returns supervision requests (pending, approved, rejected) for this teacher."
+          }
+        },
+        {
+          "name": "Teacher - Approve Request",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{}"},
+            "url": {
+              "raw": "{{base_url}}/api/v1/supervision/teacher/requests/1/approve/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "supervision", "teacher", "requests", "1", "approve", ""]
+            },
+            "description": "Authenticated teacher. Approves supervision request with id=1. Replace 1 with supervision id."
+          }
+        },
+        {
+          "name": "Teacher - Reject Request",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{}"},
+            "url": {
+              "raw": "{{base_url}}/api/v1/supervision/teacher/requests/1/reject/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "supervision", "teacher", "requests", "1", "reject", ""]
+            },
+            "description": "Authenticated teacher. Rejects supervision request with id=1. Replace 1 with supervision id."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Community",
+      "description": "Community posts: users create questions/posts for specific audiences, others comment.",
+      "item": [
+        {
+          "name": "List Posts",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {
+              "raw": "{{base_url}}/api/v1/community/posts/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "community", "posts", ""]
+            },
+            "description": "Authenticated user. Returns posts with audiences and comments_count."
+          }
+        },
+        {
+          "name": "Create Post",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Question about internship\",\n  \"body\": \"How to find a supervisor?\",\n  \"audiences\": [\n    { \"role\": \"SUPERVISORS\", \"major_id\": 1 },\n    { \"role\": \"STUDENTS\", \"major_id\": null }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/community/posts/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "community", "posts", ""]
+            },
+            "description": "Authenticated user. Creates a post with one or more audience entries (role + optional major_id)."
+          }
+        },
+        {
+          "name": "Get Post Detail",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {
+              "raw": "{{base_url}}/api/v1/community/posts/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "community", "posts", "1", ""]
+            },
+            "description": "Authenticated user. Returns a single post in the same shape as List Posts (wrapped in posts[0]). Replace 1 with post id."
+          }
+        },
+        {
+          "name": "List Comments",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {
+              "raw": "{{base_url}}/api/v1/community/posts/1/comments/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "community", "posts", "1", "comments", ""]
+            },
+            "description": "Authenticated user. Lists comments for a post. Replace 1 with post id."
+          }
+        },
+        {
+          "name": "Create Comment",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"body\": \"Nice question, here is my answer...\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/community/posts/1/comments/create/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "community", "posts", "1", "comments", "create", ""]
+            },
+            "description": "Authenticated user. Adds a comment to a post. Replace 1 with post id."
           }
         }
       ]

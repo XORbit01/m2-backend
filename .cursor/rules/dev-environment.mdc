@@ -1,0 +1,10 @@
+---
+description: Developer environment reminders
+globs: "**/*"
+alwaysApply: true
+---
+
+# Dev Environment
+
+- **Virtualenv**: Always activate the correct Python virtualenv before running management commands or tests (e.g. `source venv/bin/activate`.
+
