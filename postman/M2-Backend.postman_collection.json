@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "M2 Backend",
-    "description": "M2 Master's student registration API. Run Login first — tokens are auto-saved. All protected requests use Bearer auth automatically.",
+    "description": "M2 Master's registration API. Run Login first — tokens are auto-saved. All protected requests use Bearer auth.\n\n## Workflow notes\n\n**Auth**\n1. Login (email + password) → tokens saved automatically\n2. Token Refresh when access_token expires\n3. Me → current user + registration status\n\n**Admin setup**\n1. Login as admin (superuser)\n2. Create User → for students (email, password, full_name)\n3. Create Teacher → for teachers (email, password, full_name, title, department, is_supervisor)\n\n**Student registration**\n1. Admin creates user OR user registers\n2. Login as student\n3. GET state → get current_step + question\n4. POST answer (repeat) → body key = question.question_key\n5. POST submit when question_type = submit → status SUBMITTED (awaiting coordinator)\n\n**Coordinator – registration verification**\n1. Login as coordinator (Person must be MajorCoordinator for a major)\n2. List Pending → sessions with status SUBMITTED for their major(s)\n3. Accept or Reject (session_id in path)\n4. Accept → status ACCEPTED, profiles/experiences created; Reject → session deleted\n\n**Coordinator – course assignment**\n1. Login as coordinator\n2. List Offerings → course offerings for programs in their major(s) (Program.major must be set)\n3. List Teachers → all teachers (for dropdown)\n4. List Students → students in their major(s); List Cohorts → cohorts for their major(s)\n5. Assign Teacher → POST offering_id in path, teacher_id (person_id) in body\n\n**Teacher**\n1. Login as teacher (assigned to offerings)\n2. List Course Students → GET teacher/courses/<offering_id>/students/",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -40,6 +40,23 @@
               "path": ["api", "v1", "auth", "admin", "users", ""]
             },
             "description": "Admin only. Creates User + Person with email and temp password. Login as admin first."
+          }
+        },
+        {
+          "name": "Create Teacher",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"teacher@example.com\",\n  \"password\": \"TempPass123\",\n  \"full_name\": \"Dr. Smith\",\n  \"title\": \"Professor\",\n  \"department\": \"CS\",\n  \"is_supervisor\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/admin/teachers/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "admin", "teachers", ""]
+            },
+            "description": "Admin only. Creates User + Person + TeacherProfile. Teacher can be assigned to courses by coordinator."
           }
         }
       ]
@@ -129,7 +146,7 @@
               "host": ["{{base_url}}"],
               "path": ["api", "v1", "auth", "me", ""]
             },
-            "description": "Requires JWT. Returns current user + registration_complete, current_step."
+            "description": "Requires JWT. Returns current user, registration_complete, current_step, roles (student, teacher, coordinator, alumni), and role-based profile (full_name, enrollments, courses, taught_courses, coordinated_majors, etc.)."
           }
         }
       ]
@@ -312,6 +329,73 @@
               "path": ["api", "v1", "registration", "submit", ""]
             },
             "description": "Call when current_step is SUBMIT or question.question_type is \"submit\". Sets status to SUBMITTED (awaiting major coordinator approval). registration_complete is true only after coordinator accepts."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Programs Coordinator",
+      "description": "Coordinator manages course offerings for their major(s): list offerings, list teachers, assign teacher to offering.",
+      "item": [
+        {
+          "name": "List Offerings",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{base_url}}/api/v1/programs/coordinator/offerings/", "host": ["{{base_url}}"], "path": ["api", "v1", "programs", "coordinator", "offerings", ""]},
+            "description": "Returns course offerings for programs in coordinator's major(s). Programs must have major set."
+          }
+        },
+        {
+          "name": "List Teachers",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{base_url}}/api/v1/programs/coordinator/teachers/", "host": ["{{base_url}}"], "path": ["api", "v1", "programs", "coordinator", "teachers", ""]},
+            "description": "Returns all teachers (for dropdown when assigning)."
+          }
+        },
+        {
+          "name": "List Students",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{base_url}}/api/v1/programs/coordinator/students/", "host": ["{{base_url}}"], "path": ["api", "v1", "programs", "coordinator", "students", ""]},
+            "description": "Returns students enrolled in coordinator's major(s). Response: { students: [{ person_id, full_name, email, student_number, enrollment_id, cohort_id, cohort_academic_year, major_id, major_code, enrollment_status }] }."
+          }
+        },
+        {
+          "name": "List Cohorts",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{base_url}}/api/v1/programs/coordinator/cohorts/", "host": ["{{base_url}}"], "path": ["api", "v1", "programs", "coordinator", "cohorts", ""]},
+            "description": "Returns cohorts for programs in coordinator's major(s). Response: { cohorts: [{ id, academic_year, program_id, program_name, major_id, major_code }] }."
+          }
+        },
+        {
+          "name": "Assign Teacher",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"teacher_id\": 1\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/programs/coordinator/offerings/1/assign/", "host": ["{{base_url}}"], "path": ["api", "v1", "programs", "coordinator", "offerings", "1", "assign", ""]},
+            "description": "POST with offering_id in path, teacher_id (person_id) in body. Coordinator must manage that major."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Programs Teacher",
+      "description": "Teacher can list students enrolled in courses they teach.",
+      "item": [
+        {
+          "name": "List Course Students",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "{{base_url}}/api/v1/programs/teacher/courses/1/students/", "host": ["{{base_url}}"], "path": ["api", "v1", "programs", "teacher", "courses", "1", "students", ""]},
+            "description": "Returns students enrolled in the course offering's cohort. Teacher must be assigned to that offering. Replace 1 with offering_id. Response: { students: [{ person_id, full_name, email, student_number }] }."
           }
         }
       ]
