@@ -30,6 +30,13 @@ class Program(models.Model):
     name = models.CharField(max_length=255)
     university = models.CharField(max_length=255)
     degree_level = models.CharField(max_length=64)
+    major = models.ForeignKey(
+        Major,
+        on_delete=models.CASCADE,
+        related_name="programs",
+        null=True,
+        blank=True,
+    )
 
     class Meta:
         db_table = "programs_program"
@@ -76,7 +83,13 @@ class CourseOffering(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="offerings")
     cohort = models.ForeignKey(Cohort, on_delete=models.CASCADE, related_name="course_offerings")
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE, related_name="course_offerings")
-    teacher = models.ForeignKey(Person, on_delete=models.CASCADE, related_name="taught_offerings")
+    teacher = models.ForeignKey(
+        Person,
+        on_delete=models.SET_NULL,
+        related_name="taught_offerings",
+        null=True,
+        blank=True,
+    )
 
     class Meta:
         db_table = "programs_course_offering"

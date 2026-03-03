@@ -1,3 +1,21 @@
-from django.shortcuts import render
+"""
+Central registry for programs views.
+"""
 
-# Create your views here.
+from programs.api.v1.coordinator.views import (
+    CoordinatorAssignTeacherView,
+    CoordinatorCohortsListView,
+    CoordinatorOfferingsListView,
+    CoordinatorStudentsListView,
+    CoordinatorTeachersListView,
+)
+from programs.api.v1.teacher.views import TeacherCourseStudentsListView
+
+__all__ = [
+    "CoordinatorAssignTeacherView",
+    "CoordinatorCohortsListView",
+    "CoordinatorOfferingsListView",
+    "CoordinatorStudentsListView",
+    "CoordinatorTeachersListView",
+    "TeacherCourseStudentsListView",
+]
