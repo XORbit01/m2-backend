@@ -1,0 +1,18 @@
+---
+description: Django M2 API documentation and Swagger
+globs: **/*.py,**/urls*.py,**/swagger*
+alwaysApply: false
+---
+
+# Django M2 API Documentation
+
+## Swagger / OpenAPI
+
+- Document every endpoint
+- When an endpoint is added or changed, **update Swagger documentation**
+- Keep docs in sync with implementation
+
+## Postman
+
+- Postman collection in `postman/` folder
+- When an endpoint is added or changed, **update the Postman collection**

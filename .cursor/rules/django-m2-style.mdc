@@ -1,0 +1,29 @@
+---
+description: Django M2 code style, formatting, hardcoding, Python version
+globs: **/*.py
+alwaysApply: true
+---
+
+# Django M2 Code Style
+
+## Formatting
+
+- **Black** for code formatting
+- **Flake8** for linting
+- **isort** for import sorting (optional, pairs well with Black)
+- Run formatters before committing
+
+## Hardcoding
+
+- **Everything must be hardcoded** — no softcoding
+- Use config package for configurations; values are explicit, not loaded dynamically from external sources
+
+## Python & Django
+
+- **Python 3.10+**
+- Django and Django REST Framework versions compatible with Python 3.10+
+
+## Views
+
+- Class-based views (CBV) only
+- Mixins allowed; keep logic clear and maintainable

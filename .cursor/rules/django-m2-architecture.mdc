@@ -1,0 +1,50 @@
+---
+description: Django M2 clean architecture, folder structure, serializers, views
+globs: **/*.py
+alwaysApply: true
+---
+
+# Django M2 Architecture
+
+## Clean Architecture
+
+- Separation of concerns: helpers, API endpoints, serializers in distinct folders
+- Multiple files, multiple subfolders, clean tree structure
+- No mixing of concerns across layers
+
+## Folder Structure (per Django app)
+
+```
+app_name/
+├── api/                    # API endpoints (views)
+│   └── v1/
+│       └── endpoint_name/
+│           └── views.py
+├── serializers/            # All serializers
+│   └── endpoint_name/
+│       ├── request.py      # Request serializer for this endpoint
+│       └── response.py     # Response serializer for this endpoint
+├── helpers/                # App-specific helpers
+│   └── ...
+└── ...
+```
+
+## Serializers
+
+- **One request serializer + one response serializer per endpoint**
+- Never merge request/response into a single serializer
+- Organize in `serializers/<endpoint_name>/request.py` and `response.py`
+- Use predefined structures for every request and response
+
+## Views
+
+- **Class-based views only** — no function views
+- Use mixins and advanced patterns where appropriate
+- Keep simple; avoid overcomplication
+- **Central registry**: `app/views.py` re-exports all views from `api/v1/<endpoint>/views.py`; URLs import from `app.views`
+
+## Shared Package
+
+- Enums, common types, shared utilities → dedicated package (e.g. `core` or `shared`)
+- All Django apps import from this package
+- Single source of truth for cross-app concerns

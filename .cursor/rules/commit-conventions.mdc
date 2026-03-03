@@ -1,0 +1,40 @@
+---
+description: Git commit conventions — emoji prefix, short message, step-by-step
+alwaysApply: true
+---
+
+# Commit Conventions
+
+## When Committing
+
+- **Do not commit everything at once** — iterate step by step
+- **One logical change per commit** — group related files, or one file per commit
+- **Short message** — concise, not a long paragraph
+
+## Message Format
+
+```
+<emoji> Short sentence
+```
+
+- Use an **emoji prefix** that matches the change
+- Keep the sentence **short** (under ~50 chars ideal)
+
+## Emoji Guide
+
+| Emoji | Use for |
+|-------|---------|
+| ✨ | New feature |
+| 🐛 | Bug fix |
+| 📝 | Docs, comments |
+| ♻️ | Refactor |
+| 🧪 | Tests |
+| 🎨 | Formatting, style |
+| ⚙️ | Config, settings |
+| 🔧 | Tooling, deps |
+
+## Examples
+
+- `✨ Add registration state API`
+- `🧪 Add registration API tests`
+- `♻️ Centralize views in app/views.py`
