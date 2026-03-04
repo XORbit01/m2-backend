@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -28,6 +29,10 @@ def _get_registration_status(user):
     return False, session.current_step, person.id
 
 
+@extend_schema(
+    request=LoginRequestSerializer,
+    responses={200: LoginResponseSerializer},
+)
 class LoginView(APIView):
     """
     POST /api/v1/auth/login/

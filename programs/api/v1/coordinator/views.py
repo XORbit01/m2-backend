@@ -1,4 +1,5 @@
 from core.models import Person
+from drf_spectacular.utils import extend_schema
 from enrollment.models import Enrollment
 from profiles.models import StudentProfile, TeacherProfile
 
@@ -46,6 +47,7 @@ def _can_coordinator_manage_offering(person, offering):
     return program.major_id in major_ids
 
 
+@extend_schema(responses={200: CoordinatorOfferingsListResponseSerializer})
 class CoordinatorOfferingsListView(APIView):
     """
     GET /api/v1/programs/coordinator/offerings/
@@ -92,6 +94,10 @@ class CoordinatorOfferingsListView(APIView):
         return Response(serializer.data)
 
 
+@extend_schema(
+    request=CoordinatorAssignTeacherRequestSerializer,
+    responses={200: CoordinatorAssignTeacherResponseSerializer},
+)
 class CoordinatorAssignTeacherView(APIView):
     """
     POST /api/v1/programs/coordinator/offerings/<offering_id>/assign/
@@ -150,6 +156,7 @@ class CoordinatorAssignTeacherView(APIView):
         return Response(resp.data)
 
 
+@extend_schema(responses={200: CoordinatorTeachersListResponseSerializer})
 class CoordinatorTeachersListView(APIView):
     """
     GET /api/v1/programs/coordinator/teachers/
@@ -186,6 +193,7 @@ class CoordinatorTeachersListView(APIView):
         return Response(serializer.data)
 
 
+@extend_schema(responses={200: CoordinatorStudentsListResponseSerializer})
 class CoordinatorStudentsListView(APIView):
     """
     GET /api/v1/programs/coordinator/students/
@@ -239,6 +247,7 @@ class CoordinatorStudentsListView(APIView):
         return Response(serializer.data)
 
 
+@extend_schema(responses={200: CoordinatorCohortsListResponseSerializer})
 class CoordinatorCohortsListView(APIView):
     """
     GET /api/v1/programs/coordinator/cohorts/

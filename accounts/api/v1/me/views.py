@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -24,6 +25,7 @@ def _get_registration_status(user):
     return False, session.current_step, person.id
 
 
+@extend_schema(responses={200: MeResponseSerializer})
 class MeView(APIView):
     """
     GET /api/v1/auth/me/

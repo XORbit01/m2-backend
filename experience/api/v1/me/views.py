@@ -1,5 +1,6 @@
 from core.enums import ExperienceStatus
 from core.models import Person
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from experience.models import Experience
 from experience.serializers.me.create_response import (
     MyExperienceCreateResponseSerializer,
@@ -13,6 +14,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 
+@extend_schema_view(
+    get=extend_schema(responses={200: MyExperiencesListResponseSerializer}),
+    post=extend_schema(
+        request=MyExperienceCreateRequestSerializer,
+        responses={201: MyExperienceCreateResponseSerializer},
+    ),
+)
 class MyExperiencesListCreateView(APIView):
     """
     GET /api/v1/experience/me/

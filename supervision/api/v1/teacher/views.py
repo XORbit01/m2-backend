@@ -1,5 +1,6 @@
 from core.enums import SupervisionStatus
 from core.models import Person
+from drf_spectacular.utils import extend_schema
 from profiles.models import TeacherProfile
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -15,6 +16,7 @@ from supervision.serializers.teacher.list_response import (
 )
 
 
+@extend_schema(responses={200: TeacherSupervisionListResponseSerializer})
 class TeacherSupervisionListView(APIView):
     """
     GET /api/v1/supervision/teacher/requests/
@@ -59,6 +61,10 @@ class TeacherSupervisionListView(APIView):
         return Response(serializer.data)
 
 
+@extend_schema(
+    request=None,
+    responses={200: TeacherSupervisionActionResponseSerializer},
+)
 class TeacherSupervisionApproveView(APIView):
     """
     POST /api/v1/supervision/teacher/requests/<supervision_id>/approve/
@@ -114,6 +120,10 @@ class TeacherSupervisionApproveView(APIView):
         return Response(resp.data)
 
 
+@extend_schema(
+    request=None,
+    responses={200: TeacherSupervisionActionResponseSerializer},
+)
 class TeacherSupervisionRejectView(APIView):
     """
     POST /api/v1/supervision/teacher/requests/<supervision_id>/reject/

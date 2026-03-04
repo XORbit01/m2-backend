@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -11,6 +12,7 @@ from registration.serializers.state.response import \
 from registration.step_definitions import get_question_definition
 
 
+@extend_schema(responses={200: RegistrationStateResponseSerializer})
 class RegistrationStateView(APIView):
     """
     GET /api/v1/registration/state/

@@ -1,4 +1,5 @@
 from core.models import Person
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -12,6 +13,13 @@ from accounts.serializers.profile_settings.response import (
 )
 
 
+@extend_schema_view(
+    get=extend_schema(responses={200: ProfileSettingsResponseSerializer}),
+    put=extend_schema(
+        request=ProfileSettingsRequestSerializer,
+        responses={200: ProfileSettingsResponseSerializer},
+    ),
+)
 class ProfileSettingsView(APIView):
     """
     GET /api/v1/auth/profile/

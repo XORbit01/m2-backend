@@ -1,4 +1,5 @@
 from core.models import Person
+from drf_spectacular.utils import extend_schema
 from enrollment.models import Enrollment
 from profiles.models import StudentProfile
 
@@ -19,6 +20,7 @@ def _get_teacher_person(request):
         return None
 
 
+@extend_schema(responses={200: TeacherCourseStudentsResponseSerializer})
 class TeacherCourseStudentsListView(APIView):
     """
     GET /api/v1/programs/teacher/courses/<offering_id>/students/

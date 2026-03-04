@@ -1,6 +1,7 @@
 import logging
 
 from django.db.models import Q
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -31,6 +32,7 @@ def _get_coordinator_person(request):
         return None
 
 
+@extend_schema(responses={200: CoordinatorPendingListResponseSerializer})
 class CoordinatorPendingListView(APIView):
     """
     GET /api/v1/registration/coordinator/pending/
@@ -78,6 +80,7 @@ class CoordinatorPendingListView(APIView):
         return Response(serializer.data)
 
 
+@extend_schema(request=None, responses={200: CoordinatorAcceptResponseSerializer})
 class CoordinatorAcceptView(APIView):
     """
     POST /api/v1/registration/coordinator/<session_id>/accept/
@@ -114,6 +117,7 @@ class CoordinatorAcceptView(APIView):
         return Response(resp.data)
 
 
+@extend_schema(request=None, responses={200: CoordinatorRejectResponseSerializer})
 class CoordinatorRejectView(APIView):
     """
     POST /api/v1/registration/coordinator/<session_id>/reject/

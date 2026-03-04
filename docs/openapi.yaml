@@ -1,0 +1,2245 @@
+openapi: 3.0.3
+info:
+  title: M2 Backend API
+  version: 1.0.0
+paths:
+  /api/schema/:
+    get:
+      operationId: schema_retrieve
+      description: |-
+        OpenApi3 schema for this API. Format can be selected via content negotiation.
+
+        - YAML: application/vnd.oai.openapi
+        - JSON: application/vnd.oai.openapi+json
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - af
+          - ar
+          - ar-dz
+          - ast
+          - az
+          - be
+          - bg
+          - bn
+          - br
+          - bs
+          - ca
+          - ckb
+          - cs
+          - cy
+          - da
+          - de
+          - dsb
+          - el
+          - en
+          - en-au
+          - en-gb
+          - eo
+          - es
+          - es-ar
+          - es-co
+          - es-mx
+          - es-ni
+          - es-ve
+          - et
+          - eu
+          - fa
+          - fi
+          - fr
+          - fy
+          - ga
+          - gd
+          - gl
+          - he
+          - hi
+          - hr
+          - hsb
+          - ht
+          - hu
+          - hy
+          - ia
+          - id
+          - ig
+          - io
+          - is
+          - it
+          - ja
+          - ka
+          - kab
+          - kk
+          - km
+          - kn
+          - ko
+          - ky
+          - lb
+          - lt
+          - lv
+          - mk
+          - ml
+          - mn
+          - mr
+          - ms
+          - my
+          - nb
+          - ne
+          - nl
+          - nn
+          - os
+          - pa
+          - pl
+          - pt
+          - pt-br
+          - ro
+          - ru
+          - sk
+          - sl
+          - sq
+          - sr
+          - sr-latn
+          - sv
+          - sw
+          - ta
+          - te
+          - tg
+          - th
+          - tk
+          - tr
+          - tt
+          - udm
+          - ug
+          - uk
+          - ur
+          - uz
+          - vi
+          - zh-hans
+          - zh-hant
+      tags:
+      - schema
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/yaml:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v1/auth/admin/teachers/:
+    post:
+      operationId: v1_auth_admin_teachers_create
+      description: |-
+        POST /api/v1/auth/admin/teachers/
+        Admin only. Creates User + Person + TeacherProfile.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTeacherRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateTeacherRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateTeacherRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateTeacherResponse'
+          description: ''
+  /api/v1/auth/admin/users/:
+    post:
+      operationId: v1_auth_admin_users_create
+      description: |-
+        POST /api/v1/admin/users/
+        Admin only. Creates User + Person with email and temporary password.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateUserResponse'
+          description: ''
+  /api/v1/auth/login/:
+    post:
+      operationId: v1_auth_login_create
+      description: |-
+        POST /api/v1/auth/login/
+        Email + password. On success: session login + registration status.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+        required: true
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+          description: ''
+  /api/v1/auth/me/:
+    get:
+      operationId: v1_auth_me_retrieve
+      description: |-
+        GET /api/v1/auth/me/
+        Requires auth. Returns current user, registration status, roles, and
+        role-based profile (student, teacher, coordinator).
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeResponse'
+          description: ''
+  /api/v1/auth/profile/:
+    get:
+      operationId: v1_auth_profile_retrieve
+      description: |-
+        GET /api/v1/auth/profile/
+        Returns basic profile settings for the authenticated user.
+
+        PUT /api/v1/auth/profile/
+        Updates basic profile settings (first_name, last_name, avatar) for the authenticated user.
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileSettingsResponse'
+          description: ''
+    put:
+      operationId: v1_auth_profile_update
+      description: |-
+        GET /api/v1/auth/profile/
+        Returns basic profile settings for the authenticated user.
+
+        PUT /api/v1/auth/profile/
+        Updates basic profile settings (first_name, last_name, avatar) for the authenticated user.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileSettingsRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProfileSettingsRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProfileSettingsRequest'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileSettingsResponse'
+          description: ''
+  /api/v1/auth/token/refresh/:
+    post:
+      operationId: v1_auth_token_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/v1/community/posts/:
+    get:
+      operationId: community_posts_list
+      description: |-
+        GET /api/v1/community/posts/
+        List all community posts with audiences, comment counts, and reactions.
+
+        POST /api/v1/community/posts/
+        Create a new community post with audiences.
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommunityPostListResponse'
+          description: ''
+    post:
+      operationId: v1_community_posts_create
+      description: |-
+        GET /api/v1/community/posts/
+        List all community posts with audiences, comment counts, and reactions.
+
+        POST /api/v1/community/posts/
+        Create a new community post with audiences.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommunityCreatePostRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CommunityCreatePostRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CommunityCreatePostRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommunityCreatePostResponse'
+          description: ''
+  /api/v1/community/posts/{post_id}/:
+    get:
+      operationId: community_posts_retrieve
+      description: |-
+        GET /api/v1/community/posts/<post_id>/
+        Retrieve a single post with audiences, comment count, and reactions.
+      parameters:
+      - in: path
+        name: post_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommunityPostListResponse'
+          description: ''
+  /api/v1/community/posts/{post_id}/comments/:
+    get:
+      operationId: v1_community_posts_comments_retrieve
+      description: |-
+        GET /api/v1/community/posts/<post_id>/comments/
+        List comments for a post.
+      parameters:
+      - in: path
+        name: post_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommunityCommentsListResponse'
+          description: ''
+  /api/v1/community/posts/{post_id}/comments/create/:
+    post:
+      operationId: v1_community_posts_comments_create_create
+      description: |-
+        POST /api/v1/community/posts/<post_id>/comments/
+        Create a comment on a post.
+      parameters:
+      - in: path
+        name: post_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommunityCreateCommentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CommunityCreateCommentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CommunityCreateCommentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommunityCreateCommentResponse'
+          description: ''
+  /api/v1/community/posts/{post_id}/reactions/:
+    post:
+      operationId: v1_community_posts_reactions_create
+      description: |-
+        POST /api/v1/community/posts/<post_id>/reactions/
+        Set or update the current user's reaction on a post.
+
+        DELETE /api/v1/community/posts/<post_id>/reactions/
+        Remove the current user's reaction on a post (if any).
+      parameters:
+      - in: path
+        name: post_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommunityPostReactionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CommunityPostReactionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CommunityPostReactionRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommunityPostReactionResponse'
+          description: ''
+    delete:
+      operationId: v1_community_posts_reactions_destroy
+      description: |-
+        POST /api/v1/community/posts/<post_id>/reactions/
+        Set or update the current user's reaction on a post.
+
+        DELETE /api/v1/community/posts/<post_id>/reactions/
+        Remove the current user's reaction on a post (if any).
+      parameters:
+      - in: path
+        name: post_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/experience/me/:
+    get:
+      operationId: v1_experience_me_retrieve
+      description: |-
+        GET /api/v1/experience/me/
+        List all experience records (internships, PhD, work, other) for the authenticated person.
+
+        POST /api/v1/experience/me/
+        Create a new experience record for the authenticated person.
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MyExperiencesListResponse'
+          description: ''
+    post:
+      operationId: v1_experience_me_create
+      description: |-
+        GET /api/v1/experience/me/
+        List all experience records (internships, PhD, work, other) for the authenticated person.
+
+        POST /api/v1/experience/me/
+        Create a new experience record for the authenticated person.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MyExperienceCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MyExperienceCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MyExperienceCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MyExperienceCreateResponse'
+          description: ''
+  /api/v1/experience/me/{experience_id}/:
+    put:
+      operationId: v1_experience_me_update
+      description: |-
+        PUT /api/v1/experience/me/<experience_id>/
+        Update an experience that belongs to the authenticated person.
+
+        DELETE /api/v1/experience/me/<experience_id>/
+        Delete an experience that belongs to the authenticated person.
+      parameters:
+      - in: path
+        name: experience_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MyExperienceCreateResponse'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MyExperienceCreateResponse'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MyExperienceCreateResponse'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MyExperienceCreateResponse'
+          description: ''
+    delete:
+      operationId: v1_experience_me_destroy
+      description: |-
+        PUT /api/v1/experience/me/<experience_id>/
+        Update an experience that belongs to the authenticated person.
+
+        DELETE /api/v1/experience/me/<experience_id>/
+        Delete an experience that belongs to the authenticated person.
+      parameters:
+      - in: path
+        name: experience_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/programs/coordinator/cohorts/:
+    get:
+      operationId: v1_programs_coordinator_cohorts_retrieve
+      description: |-
+        GET /api/v1/programs/coordinator/cohorts/
+        Returns cohorts for programs in coordinator's major(s).
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoordinatorCohortsListResponse'
+          description: ''
+  /api/v1/programs/coordinator/offerings/:
+    get:
+      operationId: v1_programs_coordinator_offerings_retrieve
+      description: |-
+        GET /api/v1/programs/coordinator/offerings/
+        Returns course offerings for programs in the coordinator's major(s).
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoordinatorOfferingsListResponse'
+          description: ''
+  /api/v1/programs/coordinator/offerings/{offering_id}/assign/:
+    post:
+      operationId: v1_programs_coordinator_offerings_assign_create
+      description: |-
+        POST /api/v1/programs/coordinator/offerings/<offering_id>/assign/
+        Assign teacher to a course offering. Coordinator must manage that major.
+      parameters:
+      - in: path
+        name: offering_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoordinatorAssignTeacherRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CoordinatorAssignTeacherRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CoordinatorAssignTeacherRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoordinatorAssignTeacherResponse'
+          description: ''
+  /api/v1/programs/coordinator/students/:
+    get:
+      operationId: v1_programs_coordinator_students_retrieve
+      description: |-
+        GET /api/v1/programs/coordinator/students/
+        Returns students enrolled in coordinator's major(s).
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoordinatorStudentsListResponse'
+          description: ''
+  /api/v1/programs/coordinator/teachers/:
+    get:
+      operationId: v1_programs_coordinator_teachers_retrieve
+      description: |-
+        GET /api/v1/programs/coordinator/teachers/
+        Returns all teachers (for coordinator to choose when assigning).
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoordinatorTeachersListResponse'
+          description: ''
+  /api/v1/programs/teacher/courses/{offering_id}/students/:
+    get:
+      operationId: v1_programs_teacher_courses_students_retrieve
+      description: |-
+        GET /api/v1/programs/teacher/courses/<offering_id>/students/
+        Returns students enrolled in the course offering's cohort.
+        Teacher must be assigned to that offering.
+      parameters:
+      - in: path
+        name: offering_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeacherCourseStudentsResponse'
+          description: ''
+  /api/v1/registration/answer/:
+    post:
+      operationId: v1_registration_answer_create
+      description: |-
+        POST /api/v1/registration/answer/
+        Requires auth. Submit answer for current step; advances state and persists payload.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegistrationAnswerRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RegistrationAnswerRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RegistrationAnswerRequest'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistrationAnswerResponse'
+          description: ''
+  /api/v1/registration/coordinator/{session_id}/accept/:
+    post:
+      operationId: v1_registration_coordinator_accept_create
+      description: |-
+        POST /api/v1/registration/coordinator/<session_id>/accept/
+        Requires auth. Coordinator for the session's major can accept (final stage).
+      parameters:
+      - in: path
+        name: session_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoordinatorAcceptResponse'
+          description: ''
+  /api/v1/registration/coordinator/{session_id}/reject/:
+    post:
+      operationId: v1_registration_coordinator_reject_create
+      description: |-
+        POST /api/v1/registration/coordinator/<session_id>/reject/
+        Requires auth. Coordinator for the session's major can reject; session is deleted.
+      parameters:
+      - in: path
+        name: session_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoordinatorRejectResponse'
+          description: ''
+  /api/v1/registration/coordinator/pending/:
+    get:
+      operationId: v1_registration_coordinator_pending_retrieve
+      description: |-
+        GET /api/v1/registration/coordinator/pending/
+        Requires auth. Returns submitted registrations for majors the current user coordinates.
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoordinatorPendingListResponse'
+          description: ''
+  /api/v1/registration/state/:
+    get:
+      operationId: v1_registration_state_retrieve
+      description: |-
+        GET /api/v1/registration/state/
+        Requires auth. Returns current registration step and payload for the logged-in user's person.
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistrationStateResponse'
+          description: ''
+  /api/v1/registration/submit/:
+    post:
+      operationId: v1_registration_submit_create
+      description: |-
+        POST /api/v1/registration/submit/
+        Requires auth. Final submit when current_step is SUBMIT. Sets status to SUBMITTED.
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistrationSubmitResponse'
+          description: ''
+  /api/v1/supervision/student/requests/:
+    get:
+      operationId: v1_supervision_student_requests_retrieve
+      description: |-
+        GET /api/v1/supervision/student/requests/
+        List supervision requests for the authenticated student.
+
+        POST /api/v1/supervision/student/requests/
+        Create a new supervision request for the authenticated student.
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentSupervisionListResponse'
+          description: ''
+    post:
+      operationId: v1_supervision_student_requests_create
+      description: |-
+        GET /api/v1/supervision/student/requests/
+        List supervision requests for the authenticated student.
+
+        POST /api/v1/supervision/student/requests/
+        Create a new supervision request for the authenticated student.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentCreateSupervisionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/StudentCreateSupervisionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StudentCreateSupervisionRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentCreateSupervisionResponse'
+          description: ''
+  /api/v1/supervision/student/requests/{supervision_id}/cancel/:
+    post:
+      operationId: v1_supervision_student_requests_cancel_create
+      description: |-
+        POST /api/v1/supervision/student/requests/<supervision_id>/cancel/
+        Cancel a pending supervision request for the authenticated student.
+      parameters:
+      - in: path
+        name: supervision_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentSupervisionActionResponse'
+          description: ''
+  /api/v1/supervision/teacher/requests/:
+    get:
+      operationId: v1_supervision_teacher_requests_retrieve
+      description: |-
+        GET /api/v1/supervision/teacher/requests/
+        List supervision requests for the authenticated teacher.
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeacherSupervisionListResponse'
+          description: ''
+  /api/v1/supervision/teacher/requests/{supervision_id}/approve/:
+    post:
+      operationId: v1_supervision_teacher_requests_approve_create
+      description: |-
+        POST /api/v1/supervision/teacher/requests/<supervision_id>/approve/
+        Approve a supervision request for the authenticated teacher.
+      parameters:
+      - in: path
+        name: supervision_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeacherSupervisionActionResponse'
+          description: ''
+  /api/v1/supervision/teacher/requests/{supervision_id}/reject/:
+    post:
+      operationId: v1_supervision_teacher_requests_reject_create
+      description: |-
+        POST /api/v1/supervision/teacher/requests/<supervision_id>/reject/
+        Reject a supervision request for the authenticated teacher.
+      parameters:
+      - in: path
+        name: supervision_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeacherSupervisionActionResponse'
+          description: ''
+components:
+  schemas:
+    CommunityCommentItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        body:
+          type: string
+        author_id:
+          type: integer
+        author_full_name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - author_full_name
+      - author_id
+      - body
+      - created_at
+      - id
+    CommunityCommentsListResponse:
+      type: object
+      properties:
+        comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommunityCommentItem'
+      required:
+      - comments
+    CommunityCreateCommentRequest:
+      type: object
+      properties:
+        body:
+          type: string
+      required:
+      - body
+    CommunityCreateCommentResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        body:
+          type: string
+        author_id:
+          type: integer
+        author_full_name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - author_full_name
+      - author_id
+      - body
+      - created_at
+      - id
+    CommunityCreatePostRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 255
+        body:
+          type: string
+        audiences:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommunityPostAudienceItemRequest'
+      required:
+      - audiences
+      - body
+      - title
+    CommunityCreatePostResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        body:
+          type: string
+      required:
+      - body
+      - id
+      - title
+    CommunityPostAudienceItem:
+      type: object
+      properties:
+        role:
+          type: string
+        major_id:
+          type: integer
+          nullable: true
+        major_code:
+          type: string
+          nullable: true
+        major_name:
+          type: string
+          nullable: true
+      required:
+      - major_code
+      - major_id
+      - major_name
+      - role
+    CommunityPostAudienceItemRequest:
+      type: object
+      properties:
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        major_id:
+          type: integer
+          nullable: true
+      required:
+      - role
+    CommunityPostItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        body:
+          type: string
+        author_id:
+          type: integer
+        author_full_name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        audiences:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommunityPostAudienceItem'
+        comments_count:
+          type: integer
+        reactions:
+          $ref: '#/components/schemas/CommunityPostReactions'
+      required:
+      - audiences
+      - author_full_name
+      - author_id
+      - body
+      - comments_count
+      - created_at
+      - id
+      - reactions
+      - title
+    CommunityPostListResponse:
+      type: object
+      properties:
+        posts:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommunityPostItem'
+      required:
+      - posts
+    CommunityPostReactionRequest:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/Type7e8Enum'
+      required:
+      - type
+    CommunityPostReactionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        post_id:
+          type: integer
+        type:
+          $ref: '#/components/schemas/Type7e8Enum'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - created_at
+      - id
+      - post_id
+      - type
+      - updated_at
+    CommunityPostReactions:
+      type: object
+      properties:
+        totals:
+          $ref: '#/components/schemas/CommunityPostReactionsTotals'
+        my_reaction:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/MyReactionEnum'
+          - $ref: '#/components/schemas/NullEnum'
+      required:
+      - my_reaction
+      - totals
+    CommunityPostReactionsTotals:
+      type: object
+      properties:
+        LIKE:
+          type: integer
+        INSIGHTFUL:
+          type: integer
+        INTERESTING:
+          type: integer
+        THANKS:
+          type: integer
+        SUPPORT:
+          type: integer
+      required:
+      - INSIGHTFUL
+      - INTERESTING
+      - LIKE
+      - SUPPORT
+      - THANKS
+    CoordinatorAcceptResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+      required:
+      - message
+      - status
+    CoordinatorAssignTeacherRequest:
+      type: object
+      properties:
+        teacher_id:
+          type: integer
+      required:
+      - teacher_id
+    CoordinatorAssignTeacherResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+      - message
+    CoordinatorCohortItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        academic_year:
+          type: string
+        program_id:
+          type: integer
+        program_name:
+          type: string
+        major_id:
+          type: integer
+          nullable: true
+        major_code:
+          type: string
+          nullable: true
+      required:
+      - academic_year
+      - id
+      - major_code
+      - major_id
+      - program_id
+      - program_name
+    CoordinatorCohortsListResponse:
+      type: object
+      properties:
+        cohorts:
+          type: array
+          items:
+            $ref: '#/components/schemas/CoordinatorCohortItem'
+      required:
+      - cohorts
+    CoordinatorOfferingsListResponse:
+      type: object
+      properties:
+        offerings:
+          type: array
+          items:
+            $ref: '#/components/schemas/CourseOfferingItem'
+      required:
+      - offerings
+    CoordinatorPendingListResponse:
+      type: object
+      properties:
+        sessions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PendingSessionItem'
+      required:
+      - sessions
+    CoordinatorRejectResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+      - message
+    CoordinatorStudentItem:
+      type: object
+      properties:
+        person_id:
+          type: integer
+        full_name:
+          type: string
+        email:
+          type: string
+          format: email
+        student_number:
+          type: string
+        enrollment_id:
+          type: integer
+        cohort_id:
+          type: integer
+        cohort_academic_year:
+          type: string
+        major_id:
+          type: integer
+        major_code:
+          type: string
+        enrollment_status:
+          type: string
+      required:
+      - cohort_academic_year
+      - cohort_id
+      - email
+      - enrollment_id
+      - enrollment_status
+      - full_name
+      - major_code
+      - major_id
+      - person_id
+      - student_number
+    CoordinatorStudentsListResponse:
+      type: object
+      properties:
+        students:
+          type: array
+          items:
+            $ref: '#/components/schemas/CoordinatorStudentItem'
+      required:
+      - students
+    CoordinatorTeachersListResponse:
+      type: object
+      properties:
+        teachers:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeacherItem'
+      required:
+      - teachers
+    CourseOfferingItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        course_id:
+          type: integer
+        course_code:
+          type: string
+        course_title:
+          type: string
+        cohort_id:
+          type: integer
+        cohort_academic_year:
+          type: string
+        semester_id:
+          type: integer
+        semester_name:
+          type: string
+        teacher_id:
+          type: integer
+          nullable: true
+        teacher_name:
+          type: string
+          nullable: true
+      required:
+      - cohort_academic_year
+      - cohort_id
+      - course_code
+      - course_id
+      - course_title
+      - id
+      - semester_id
+      - semester_name
+      - teacher_id
+      - teacher_name
+    CreateTeacherRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          writeOnly: true
+          minLength: 8
+        full_name:
+          type: string
+          maxLength: 255
+        title:
+          type: string
+          maxLength: 128
+        department:
+          type: string
+          maxLength: 255
+        is_supervisor:
+          type: boolean
+          default: false
+      required:
+      - department
+      - email
+      - full_name
+      - password
+      - title
+    CreateTeacherResponse:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        person_id:
+          type: integer
+        teacher_profile_id:
+          type: integer
+        email:
+          type: string
+          format: email
+        full_name:
+          type: string
+        title:
+          type: string
+        department:
+          type: string
+        is_supervisor:
+          type: boolean
+      required:
+      - department
+      - email
+      - full_name
+      - is_supervisor
+      - person_id
+      - teacher_profile_id
+      - title
+      - user_id
+    CreateUserRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          writeOnly: true
+          minLength: 8
+        full_name:
+          type: string
+          maxLength: 255
+      required:
+      - email
+      - full_name
+      - password
+    CreateUserResponse:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        person_id:
+          type: integer
+        email:
+          type: string
+          format: email
+        full_name:
+          type: string
+      required:
+      - email
+      - full_name
+      - person_id
+      - user_id
+    ExperienceItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+        status:
+          type: string
+        institution_id:
+          type: integer
+        institution_name:
+          type: string
+        title:
+          type: string
+        idea:
+          type: string
+        start_date:
+          type: string
+          format: date
+          nullable: true
+        end_date:
+          type: string
+          format: date
+          nullable: true
+        lab_name:
+          type: string
+        supervisor_name:
+          type: string
+        supervisor_id:
+          type: integer
+          nullable: true
+        keywords:
+          type: string
+        links: {}
+      required:
+      - end_date
+      - id
+      - idea
+      - institution_id
+      - institution_name
+      - keywords
+      - lab_name
+      - links
+      - start_date
+      - status
+      - supervisor_id
+      - supervisor_name
+      - title
+      - type
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          writeOnly: true
+      required:
+      - email
+      - password
+    LoginResponse:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        email:
+          type: string
+          format: email
+        registration_complete:
+          type: boolean
+        current_step:
+          type: string
+          nullable: true
+        person_id:
+          type: integer
+          nullable: true
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+      required:
+      - access_token
+      - current_step
+      - email
+      - person_id
+      - refresh_token
+      - registration_complete
+      - user_id
+    MeCoordinatedMajorItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        code:
+          type: string
+        name:
+          type: string
+      required:
+      - code
+      - id
+      - name
+    MeCourseItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        course_code:
+          type: string
+        course_title:
+          type: string
+        semester_name:
+          type: string
+        cohort_academic_year:
+          type: string
+        teacher_name:
+          type: string
+          nullable: true
+      required:
+      - cohort_academic_year
+      - course_code
+      - course_title
+      - id
+      - semester_name
+      - teacher_name
+    MeEnrollmentItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        cohort_id:
+          type: integer
+        cohort_academic_year:
+          type: string
+        major_id:
+          type: integer
+        major_code:
+          type: string
+        major_name:
+          type: string
+        program_name:
+          type: string
+        status:
+          type: string
+      required:
+      - cohort_academic_year
+      - cohort_id
+      - id
+      - major_code
+      - major_id
+      - major_name
+      - program_name
+      - status
+    MeProfile:
+      type: object
+      properties:
+        full_name:
+          type: string
+        student_number:
+          type: string
+        current_status:
+          type: string
+        enrollments:
+          type: array
+          items:
+            $ref: '#/components/schemas/MeEnrollmentItem'
+        courses:
+          type: array
+          items:
+            $ref: '#/components/schemas/MeCourseItem'
+        graduation_year:
+          type: integer
+        current_country:
+          type: string
+        title:
+          type: string
+        department:
+          type: string
+        is_supervisor:
+          type: boolean
+        taught_courses:
+          type: array
+          items:
+            $ref: '#/components/schemas/MeTaughtCourseItem'
+        coordinated_majors:
+          type: array
+          items:
+            $ref: '#/components/schemas/MeCoordinatedMajorItem'
+      required:
+      - full_name
+    MeResponse:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        email:
+          type: string
+          format: email
+        registration_complete:
+          type: boolean
+        current_step:
+          type: string
+          nullable: true
+        person_id:
+          type: integer
+          nullable: true
+        roles:
+          type: array
+          items:
+            type: string
+        profile:
+          allOf:
+          - $ref: '#/components/schemas/MeProfile'
+          nullable: true
+      required:
+      - current_step
+      - email
+      - person_id
+      - profile
+      - registration_complete
+      - roles
+      - user_id
+    MeTaughtCourseItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        course_code:
+          type: string
+        course_title:
+          type: string
+        semester_name:
+          type: string
+        cohort_academic_year:
+          type: string
+      required:
+      - cohort_academic_year
+      - course_code
+      - course_title
+      - id
+      - semester_name
+    MyExperienceCreateRequest:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/MyExperienceCreateRequestTypeEnum'
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        institution_id:
+          type: integer
+        title:
+          type: string
+          maxLength: 255
+        idea:
+          type: string
+        start_date:
+          type: string
+          format: date
+          nullable: true
+        end_date:
+          type: string
+          format: date
+          nullable: true
+        lab_name:
+          type: string
+          maxLength: 255
+        supervisor_name:
+          type: string
+          maxLength: 255
+        supervisor_id:
+          type: integer
+          nullable: true
+        keywords:
+          type: string
+        links: {}
+      required:
+      - institution_id
+      - title
+      - type
+    MyExperienceCreateRequestTypeEnum:
+      enum:
+      - STAGE
+      - DOCTORATE
+      - RESEARCH
+      - JOB
+      - OTHER
+      type: string
+      description: |-
+        * `STAGE` - STAGE
+        * `DOCTORATE` - DOCTORATE
+        * `RESEARCH` - RESEARCH
+        * `JOB` - JOB
+        * `OTHER` - OTHER
+    MyExperienceCreateResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+        status:
+          type: string
+        institution_id:
+          type: integer
+        institution_name:
+          type: string
+        title:
+          type: string
+        idea:
+          type: string
+        start_date:
+          type: string
+          format: date
+          nullable: true
+        end_date:
+          type: string
+          format: date
+          nullable: true
+        lab_name:
+          type: string
+        supervisor_name:
+          type: string
+        supervisor_id:
+          type: integer
+          nullable: true
+        keywords:
+          type: string
+        links: {}
+      required:
+      - end_date
+      - id
+      - idea
+      - institution_id
+      - institution_name
+      - keywords
+      - lab_name
+      - links
+      - start_date
+      - status
+      - supervisor_id
+      - supervisor_name
+      - title
+      - type
+    MyExperiencesListResponse:
+      type: object
+      properties:
+        experiences:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExperienceItem'
+      required:
+      - experiences
+    MyReactionEnum:
+      enum:
+      - LIKE
+      - INSIGHTFUL
+      - INTERESTING
+      - THANKS
+      - SUPPORT
+      type: string
+      description: |-
+        * `LIKE` - LIKE
+        * `INSIGHTFUL` - INSIGHTFUL
+        * `INTERESTING` - INTERESTING
+        * `THANKS` - THANKS
+        * `SUPPORT` - SUPPORT
+    NullEnum:
+      enum:
+      - null
+    PendingSessionItem:
+      type: object
+      properties:
+        session_id:
+          type: integer
+        person_id:
+          type: integer
+        full_name:
+          type: string
+        email:
+          type: string
+          format: email
+        base_role:
+          type: string
+          nullable: true
+        payload: {}
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - base_role
+      - created_at
+      - email
+      - full_name
+      - payload
+      - person_id
+      - session_id
+    ProfileSettingsRequest:
+      type: object
+      properties:
+        first_name:
+          type: string
+          maxLength: 255
+        last_name:
+          type: string
+          maxLength: 255
+        avatar:
+          type: string
+          format: uri
+    ProfileSettingsResponse:
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+          format: email
+        avatar_url:
+          type: string
+          nullable: true
+      required:
+      - avatar_url
+      - email
+      - first_name
+      - last_name
+    RegistrationAnswerRequest:
+      type: object
+      description: Payload for POST /registration/answer. Keys depend on current step.
+      properties:
+        finished_master:
+          type: boolean
+        has_internship:
+          type: boolean
+        had_internship:
+          type: boolean
+        is_phd_student:
+          type: boolean
+        is_working:
+          type: boolean
+        student_data: {}
+        alumni_data: {}
+        internship_data: {}
+        phd_data: {}
+        work_data: {}
+    RegistrationAnswerResponse:
+      type: object
+      properties:
+        current_step:
+          type: string
+        payload: {}
+        base_role:
+          type: string
+          nullable: true
+        status:
+          type: string
+        question:
+          nullable: true
+      required:
+      - base_role
+      - current_step
+      - payload
+      - question
+      - status
+    RegistrationStateResponse:
+      type: object
+      properties:
+        current_step:
+          type: string
+        current_step_label:
+          type: string
+        payload: {}
+        base_role:
+          type: string
+          nullable: true
+        status:
+          type: string
+        next_question_key:
+          type: string
+          nullable: true
+        question:
+          nullable: true
+      required:
+      - base_role
+      - current_step
+      - payload
+      - question
+      - status
+    RegistrationSubmitResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+      required:
+      - message
+      - status
+    RoleEnum:
+      enum:
+      - GENERAL
+      - STUDENTS
+      - SUPERVISORS
+      - TEACHERS
+      - ALUMNI
+      - GUESTS
+      type: string
+      description: |-
+        * `GENERAL` - GENERAL
+        * `STUDENTS` - STUDENTS
+        * `SUPERVISORS` - SUPERVISORS
+        * `TEACHERS` - TEACHERS
+        * `ALUMNI` - ALUMNI
+        * `GUESTS` - GUESTS
+    StatusEnum:
+      enum:
+      - PLANNED
+      - ONGOING
+      - COMPLETED
+      - STOPPED
+      type: string
+      description: |-
+        * `PLANNED` - PLANNED
+        * `ONGOING` - ONGOING
+        * `COMPLETED` - COMPLETED
+        * `STOPPED` - STOPPED
+    StudentCreateSupervisionRequest:
+      type: object
+      properties:
+        teacher_id:
+          type: integer
+      required:
+      - teacher_id
+    StudentCreateSupervisionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        teacher_id:
+          type: integer
+        status:
+          type: string
+      required:
+      - id
+      - status
+      - teacher_id
+    StudentSupervisionActionResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+      - message
+    StudentSupervisionItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        teacher_id:
+          type: integer
+        teacher_name:
+          type: string
+        teacher_email:
+          type: string
+          format: email
+        status:
+          type: string
+      required:
+      - id
+      - status
+      - teacher_email
+      - teacher_id
+      - teacher_name
+    StudentSupervisionListResponse:
+      type: object
+      properties:
+        supervisions:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentSupervisionItem'
+      required:
+      - supervisions
+    TeacherCourseStudentItem:
+      type: object
+      properties:
+        person_id:
+          type: integer
+        full_name:
+          type: string
+        email:
+          type: string
+          format: email
+        student_number:
+          type: string
+      required:
+      - email
+      - full_name
+      - person_id
+      - student_number
+    TeacherCourseStudentsResponse:
+      type: object
+      properties:
+        students:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeacherCourseStudentItem'
+      required:
+      - students
+    TeacherItem:
+      type: object
+      properties:
+        person_id:
+          type: integer
+        full_name:
+          type: string
+        email:
+          type: string
+          format: email
+        title:
+          type: string
+        department:
+          type: string
+        is_supervisor:
+          type: boolean
+      required:
+      - department
+      - email
+      - full_name
+      - is_supervisor
+      - person_id
+      - title
+    TeacherSupervisionActionResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+      - message
+    TeacherSupervisionItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        student_id:
+          type: integer
+        student_name:
+          type: string
+        student_email:
+          type: string
+          format: email
+        status:
+          type: string
+      required:
+      - id
+      - status
+      - student_email
+      - student_id
+      - student_name
+    TeacherSupervisionListResponse:
+      type: object
+      properties:
+        requests:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeacherSupervisionItem'
+      required:
+      - requests
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          writeOnly: true
+      required:
+      - access
+      - refresh
+    Type7e8Enum:
+      enum:
+      - LIKE
+      - INSIGHTFUL
+      - INTERESTING
+      - THANKS
+      - SUPPORT
+      type: string
+      description: |-
+        * `LIKE` - LIKE
+        * `INSIGHTFUL` - INSIGHTFUL
+        * `INTERESTING` - INTERESTING
+        * `THANKS` - THANKS
+        * `SUPPORT` - SUPPORT
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT access token from login
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

@@ -1,5 +1,6 @@
 import logging
 
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -21,6 +22,10 @@ from registration.step_definitions import get_question_definition
 log = logging.getLogger(__name__)
 
 
+@extend_schema(
+    request=RegistrationAnswerRequestSerializer,
+    responses={200: RegistrationAnswerResponseSerializer},
+)
 class RegistrationAnswerView(APIView):
     """
     POST /api/v1/registration/answer/

@@ -1,4 +1,5 @@
 from core.models import Person
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from experience.models import Experience
 from experience.serializers.me.create_response import (
     MyExperienceCreateResponseSerializer,
@@ -9,6 +10,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 
+@extend_schema(responses={200: MyExperienceCreateResponseSerializer})
+@extend_schema_view(
+    put=extend_schema(responses={200: MyExperienceCreateResponseSerializer}),
+    delete=extend_schema(responses={204: None}),
+)
 class MyExperienceDetailView(APIView):
     """
     PUT /api/v1/experience/me/<experience_id>/
@@ -19,6 +25,7 @@ class MyExperienceDetailView(APIView):
     """
 
     permission_classes = [IsAuthenticated]
+    serializer_class = MyExperienceCreateResponseSerializer
 
     def _get_person(self, request):
         try:

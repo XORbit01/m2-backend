@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
@@ -16,6 +17,10 @@ from profiles.models import TeacherProfile
 User = get_user_model()
 
 
+@extend_schema(
+    request=CreateTeacherRequestSerializer,
+    responses={201: CreateTeacherResponseSerializer},
+)
 class CreateTeacherView(APIView):
     """
     POST /api/v1/auth/admin/teachers/

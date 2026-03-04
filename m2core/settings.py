@@ -150,6 +150,8 @@ SIMPLE_JWT = {
 
 # Swagger / OpenAPI
 SPECTACULAR_SETTINGS = {
+    "TITLE": "M2 Backend API",
+    "VERSION": "1.0.0",
     "SECURITY": [{"BearerAuth": []}],
     "APPEND_COMPONENTS": {
         "securitySchemes": {

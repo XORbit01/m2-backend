@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from programs.models import Major
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -30,6 +31,16 @@ from community.serializers.posts.reaction_response import (
 )
 
 
+@extend_schema_view(
+    get=extend_schema(
+        responses={200: CommunityPostListResponseSerializer},
+        operation_id="community_posts_list",
+    ),
+    post=extend_schema(
+        request=CommunityCreatePostRequestSerializer,
+        responses={201: CommunityCreatePostResponseSerializer},
+    ),
+)
 class CommunityPostListCreateView(APIView):
     """
     GET /api/v1/community/posts/
@@ -146,6 +157,12 @@ class CommunityPostListCreateView(APIView):
         return Response(resp.data, status=status.HTTP_201_CREATED)
 
 
+@extend_schema_view(
+    get=extend_schema(
+        responses={200: CommunityPostListResponseSerializer},
+        operation_id="community_posts_retrieve",
+    ),
+)
 class CommunityPostDetailView(APIView):
     """
     GET /api/v1/community/posts/<post_id>/
@@ -221,6 +238,7 @@ class CommunityPostDetailView(APIView):
         return Response(serializer.data)
 
 
+@extend_schema(responses={200: CommunityCommentsListResponseSerializer})
 class CommunityPostCommentsListView(APIView):
     """
     GET /api/v1/community/posts/<post_id>/comments/
@@ -259,6 +277,10 @@ class CommunityPostCommentsListView(APIView):
         return Response(serializer.data)
 
 
+@extend_schema(
+    request=CommunityCreateCommentRequestSerializer,
+    responses={201: CommunityCreateCommentResponseSerializer},
+)
 class CommunityPostCommentsCreateView(APIView):
     """
     POST /api/v1/community/posts/<post_id>/comments/
@@ -304,6 +326,13 @@ class CommunityPostCommentsCreateView(APIView):
         return Response(resp.data, status=status.HTTP_201_CREATED)
 
 
+@extend_schema_view(
+    post=extend_schema(
+        request=CommunityPostReactionRequestSerializer,
+        responses={200: CommunityPostReactionResponseSerializer},
+    ),
+    delete=extend_schema(responses={204: None}),
+)
 class CommunityPostReactionsView(APIView):
     """
     POST /api/v1/community/posts/<post_id>/reactions/

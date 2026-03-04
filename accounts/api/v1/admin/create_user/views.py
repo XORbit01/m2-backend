@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
@@ -13,6 +14,10 @@ from core.models import Person
 User = get_user_model()
 
 
+@extend_schema(
+    request=CreateUserRequestSerializer,
+    responses={201: CreateUserResponseSerializer},
+)
 class CreateUserView(APIView):
     """
     POST /api/v1/admin/users/
