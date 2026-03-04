@@ -1,10 +1,10 @@
-from core.models import Person
 from programs.models import Major
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from community.helpers.participation import get_or_create_community_author_person
 from community.models import Post, PostAudience, PostComment
 from community.serializers.posts.comment_request import (
     CommunityCreateCommentRequestSerializer,
@@ -72,9 +72,8 @@ class CommunityPostListCreateView(APIView):
         return Response(serializer.data)
 
     def post(self, request):
-        try:
-            person = request.user.person
-        except Person.DoesNotExist:
+        person = get_or_create_community_author_person(request.user)
+        if person is None:
             return Response(
                 {"detail": "User has no linked person"},
                 status=status.HTTP_403_FORBIDDEN,
@@ -212,9 +211,8 @@ class CommunityPostCommentsCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, post_id):
-        try:
-            person = request.user.person
-        except Person.DoesNotExist:
+        person = get_or_create_community_author_person(request.user)
+        if person is None:
             return Response(
                 {"detail": "User has no linked person"},
                 status=status.HTTP_403_FORBIDDEN,
