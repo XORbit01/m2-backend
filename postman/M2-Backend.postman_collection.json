@@ -660,6 +660,36 @@
             },
             "description": "Authenticated user. Adds a comment to a post. Replace 1 with post id."
           }
+        },
+        {
+          "name": "Set Reaction",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"LIKE\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/community/posts/1/reactions/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "community", "posts", "1", "reactions", ""]
+            },
+            "description": "Authenticated user. Sets or updates current user's reaction on a post. type must be one of LIKE, INSIGHTFUL, INTERESTING, THANKS, SUPPORT. Replace 1 with post id."
+          }
+        },
+        {
+          "name": "Remove Reaction",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {
+              "raw": "{{base_url}}/api/v1/community/posts/1/reactions/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "community", "posts", "1", "reactions", ""]
+            },
+            "description": "Authenticated user. Removes current user's reaction (if any) from the post. Replace 1 with post id."
+          }
         }
       ]
     },

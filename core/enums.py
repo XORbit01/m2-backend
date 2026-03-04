@@ -53,3 +53,11 @@ class PostAudienceRole(models.TextChoices):
     TEACHERS = "TEACHERS", "Teachers"
     ALUMNI = "ALUMNI", "Alumni"
     GUESTS = "GUESTS", "Guests"
+
+
+class PostReactionType(models.TextChoices):
+    LIKE = "LIKE", "Like"
+    INSIGHTFUL = "INSIGHTFUL", "Insightful"
+    INTERESTING = "INTERESTING", "Interesting"
+    THANKS = "THANKS", "Thanks"
+    SUPPORT = "SUPPORT", "Support"

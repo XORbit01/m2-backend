@@ -1,6 +1,6 @@
 from django.db import models
 
-from core.enums import PostAudienceRole
+from core.enums import PostAudienceRole, PostReactionType
 from core.models import Person
 from programs.models import Major
 
@@ -71,4 +71,31 @@ class PostComment(models.Model):
 
     def __str__(self):
         return f"Comment by {self.author} on {self.post_id}"
+
+
+class PostReaction(models.Model):
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        related_name="reactions",
+    )
+    person = models.ForeignKey(
+        Person,
+        on_delete=models.CASCADE,
+        related_name="post_reactions",
+    )
+    type = models.CharField(
+        max_length=32,
+        choices=PostReactionType.choices,
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "community_post_reaction"
+        ordering = ("-created_at",)
+        unique_together = ("post", "person")
+
+    def __str__(self):
+        return f"{self.type} by {self.person} on post {self.post_id}"
 

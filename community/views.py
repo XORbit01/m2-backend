@@ -7,6 +7,7 @@ from community.api.v1.posts.views import (
     CommunityPostCommentsCreateView,
     CommunityPostDetailView,
     CommunityPostListCreateView,
+    CommunityPostReactionsView,
 )
 
 __all__ = [
@@ -14,5 +15,6 @@ __all__ = [
     "CommunityPostCommentsListView",
     "CommunityPostDetailView",
     "CommunityPostListCreateView",
+    "CommunityPostReactionsView",
 ]
 

@@ -5,6 +5,7 @@ from community.views import (
     CommunityPostCommentsListView,
     CommunityPostDetailView,
     CommunityPostListCreateView,
+    CommunityPostReactionsView,
 )
 
 app_name = "community"
@@ -29,6 +30,11 @@ urlpatterns = [
         "posts/<int:post_id>/comments/create/",
         CommunityPostCommentsCreateView.as_view(),
         name="community-post-comments-create",
+    ),
+    path(
+        "posts/<int:post_id>/reactions/",
+        CommunityPostReactionsView.as_view(),
+        name="community-post-reactions",
     ),
 ]
 
