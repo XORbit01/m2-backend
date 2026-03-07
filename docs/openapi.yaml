@@ -1683,6 +1683,11 @@ components:
         person_id:
           type: integer
           nullable: true
+        roles:
+          type: array
+          items:
+            type: string
+          description: Actor roles (e.g. student, alumni, teacher, guest, coordinator, admin)
         access_token:
           type: string
         refresh_token:
@@ -1694,6 +1699,7 @@ components:
       - person_id
       - refresh_token
       - registration_complete
+      - roles
       - user_id
     MeCoordinatedMajorItem:
       type: object

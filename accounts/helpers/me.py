@@ -10,24 +10,29 @@ from programs.models import CourseOffering, Major
 from profiles.models import AlumniProfile, GuestProfile, StudentProfile, TeacherProfile
 
 
-def get_me_roles(person):
+def get_me_roles(person, user=None):
     """
-    Return list of role strings for person: student, teacher, coordinator.
-    Person can have multiple roles.
+    Return list of role strings for person: student, alumni, teacher, guest,
+    coordinator, admin. Person can have multiple roles. Admin is added when
+    user.is_staff.
     """
-    if person is None:
+    if person is None and user is None:
         return []
     roles = []
-    if StudentProfile.objects.filter(person=person).exists():
-        roles.append("student")
-    if AlumniProfile.objects.filter(person=person).exists():
-        roles.append("alumni")
-    if TeacherProfile.objects.filter(person=person).exists():
-        roles.append("teacher")
-    if GuestProfile.objects.filter(person=person).exists():
-        roles.append("guest")
-    if get_coordinated_major_ids(person):
-        roles.append("coordinator")
+    if person is not None:
+        if StudentProfile.objects.filter(person=person).exists():
+            roles.append("student")
+        if AlumniProfile.objects.filter(person=person).exists():
+            roles.append("alumni")
+        if TeacherProfile.objects.filter(person=person).exists():
+            roles.append("teacher")
+        if GuestProfile.objects.filter(person=person).exists():
+            roles.append("guest")
+        if get_coordinated_major_ids(person):
+            roles.append("coordinator")
+    u = user if user is not None else (getattr(person, "user", None) if person else None)
+    if u and getattr(u, "is_staff", False):
+        roles.append("admin")
     return roles
 
 

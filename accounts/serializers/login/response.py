@@ -7,5 +7,6 @@ class LoginResponseSerializer(serializers.Serializer):
     registration_complete = serializers.BooleanField()
     current_step = serializers.CharField(allow_null=True)
     person_id = serializers.IntegerField(allow_null=True)
+    roles = serializers.ListField(child=serializers.CharField())
     access_token = serializers.CharField()
     refresh_token = serializers.CharField()

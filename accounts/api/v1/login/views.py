@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from accounts.helpers.me import get_me_roles
 from accounts.serializers.login.request import LoginRequestSerializer
 from accounts.serializers.login.response import LoginResponseSerializer
 
@@ -57,12 +58,20 @@ class LoginView(APIView):
 
         refresh = RefreshToken.for_user(user)
         reg_complete, current_step, person_id = _get_registration_status(user)
+        from core.models import Person
+
+        try:
+            person = user.person
+        except Person.DoesNotExist:
+            person = None
+        roles = get_me_roles(person, user=user)
         data = {
             "user_id": user.id,
             "email": user.email,
             "registration_complete": reg_complete,
             "current_step": current_step,
             "person_id": person_id,
+            "roles": roles,
             "access_token": str(refresh.access_token),
             "refresh_token": str(refresh),
         }

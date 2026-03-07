@@ -47,7 +47,7 @@ class MeView(APIView):
         except Person.DoesNotExist:
             pass
 
-        roles = get_me_roles(person)
+        roles = get_me_roles(person, user=user)
         profile = build_me_profile(person)
 
         data = {
