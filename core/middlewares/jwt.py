@@ -16,6 +16,13 @@ JWT_SKIP_PATHS = (
     "/api/v1/auth/login/",
     "/api/v1/auth/register/guest/",
     "/api/v1/auth/token/refresh/",
+    "/api/v1/options/majors/",
+    "/api/v1/options/programs/",
+    "/api/v1/options/cohorts/",
+    "/api/v1/options/courses/",
+    "/api/v1/options/semesters/",
+    "/api/v1/options/institutions/",
+    "/api/v1/options/institution-types/",
     "/api/schema/",
     "/api/docs/",
 )

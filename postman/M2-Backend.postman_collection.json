@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "M2 Backend",
-    "description": "M2 Master's registration API. Run Login first — tokens are auto-saved. All protected requests use Bearer auth.\n\n## Workflow notes\n\n**Auth**\n1. Register Guest (public) → creates User + Person + GuestProfile; then Login\n2. Login (email + password) → tokens saved automatically\n3. Token Refresh when access_token expires\n4. Me → current user + registration status\n\n**Admin setup**\n1. Login as admin (superuser)\n2. Create User → for students (email, password, full_name)\n3. Create Teacher → for teachers (email, password, full_name, title, department, is_supervisor)\n\n**Student registration**\n1. Admin creates user OR user registers\n2. Login as student\n3. GET state → get current_step + question\n4. POST answer (repeat) → body key = question.question_key\n5. POST submit when question_type = submit → status SUBMITTED (awaiting coordinator)\n\n**Coordinator – registration verification**\n1. Login as coordinator (Person must be MajorCoordinator for a major)\n2. List Pending → sessions with status SUBMITTED for their major(s)\n3. Accept or Reject (session_id in path)\n4. Accept → status ACCEPTED, profiles/experiences created; Reject → session deleted\n\n**Coordinator – course assignment**\n1. Login as coordinator\n2. List Offerings → course offerings for programs in their major(s) (Program.major must be set)\n3. List Teachers → all teachers (for dropdown)\n4. List Students → students in their major(s); List Cohorts → cohorts for their major(s)\n5. Assign Teacher → POST offering_id in path, teacher_id (person_id) in body\n\n**Teacher**\n1. Login as teacher (assigned to offerings)\n2. List Course Students → GET teacher/courses/<offering_id>/students/",
+    "description": "M2 Master's registration API. Run Login first — tokens are auto-saved. All protected requests use Bearer auth.\n\n## Workflow notes\n\n**Auth**\n1. Register Guest (public) → creates User + Person + GuestProfile; then Login\n2. Login (email + password) → tokens saved automatically\n3. Token Refresh when access_token expires\n4. Me → current user + registration status\n\n**Admin setup**\n1. Login as admin (superuser)\n2. Users: List/Create/Retrieve/Update/Delete → auth/admin/users/\n3. Teachers: Create → auth/admin/teachers/\n4. Majors, Programs, Cohorts, Courses, Semesters, Offerings, Institutions: full CRUD → programs/admin/*, institutions/admin/*\n5. Major coordinators: POST programs/admin/majors/<id>/coordinators/, DELETE .../coordinators/<person_id>/\n\n**Student registration**\n1. Admin creates user OR user registers\n2. Login as student\n3. GET state → get current_step + question\n4. POST answer (repeat) → body key = question.question_key\n5. POST submit when question_type = submit → status SUBMITTED (awaiting coordinator)\n\n**Coordinator – registration verification**\n1. Login as coordinator (Person must be MajorCoordinator for a major)\n2. List Pending → sessions with status SUBMITTED for their major(s)\n3. Accept or Reject (session_id in path)\n4. Accept → status ACCEPTED, profiles/experiences created; Reject → session deleted\n\n**Coordinator – course assignment**\n1. Login as coordinator\n2. List Offerings → course offerings for programs in their major(s) (Program.major must be set)\n3. List Teachers → all teachers (for dropdown)\n4. List Students → students in their major(s); List Cohorts → cohorts for their major(s)\n5. Assign Teacher → POST offering_id in path, teacher_id (person_id) in body\n\n**Teacher**\n1. Login as teacher (assigned to offerings)\n2. List Course Students → GET teacher/courses/<offering_id>/students/",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -26,6 +26,19 @@
       "name": "Admin",
       "item": [
         {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/admin/users/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "admin", "users", ""]
+            },
+            "description": "Admin only. List all users with roles."
+          }
+        },
+        {
           "name": "Create User",
           "request": {
             "method": "POST",
@@ -40,6 +53,170 @@
               "path": ["api", "v1", "auth", "admin", "users", ""]
             },
             "description": "Admin only. Creates User + Person with email and temp password. Login as admin first."
+          }
+        },
+        {
+          "name": "Retrieve User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/admin/users/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "admin", "users", "1", ""]
+            },
+            "description": "Admin only. Retrieve user by id. Replace 1 with user_id."
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"updated@example.com\",\n  \"full_name\": \"Updated Name\",\n  \"password\": \"NewPass123\",\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/admin/users/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "admin", "users", "1", ""]
+            },
+            "description": "Admin only. Update user (email, full_name, password, is_active). Replace 1 with user_id."
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/admin/users/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "admin", "users", "1", ""]
+            },
+            "description": "Admin only. Delete user and related person. Replace 1 with user_id."
+          }
+        },
+        {
+          "name": "List Majors",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{base_url}}/api/v1/programs/admin/majors/", "host": ["{{base_url}}"], "path": ["api", "v1", "programs", "admin", "majors", ""]}
+          }
+        },
+        {
+          "name": "Create Major",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\"code\": \"M2CS\", \"name\": \"Master Computer Science\"}"},
+            "url": {"raw": "{{base_url}}/api/v1/programs/admin/majors/", "host": ["{{base_url}}"], "path": ["api", "v1", "programs", "admin", "majors", ""]}
+          }
+        },
+        {
+          "name": "List Programs",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{base_url}}/api/v1/programs/admin/programs/", "host": ["{{base_url}}"], "path": ["api", "v1", "programs", "admin", "programs", ""]}
+          }
+        },
+        {
+          "name": "Create Program",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\"name\": \"M2 CS\", \"university\": \"LU\", \"degree_level\": \"Master\", \"major_id\": 1}"},
+            "url": {"raw": "{{base_url}}/api/v1/programs/admin/programs/", "host": ["{{base_url}}"], "path": ["api", "v1", "programs", "admin", "programs", ""]}
+          }
+        },
+        {
+          "name": "List Cohorts",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{base_url}}/api/v1/programs/admin/cohorts/", "host": ["{{base_url}}"], "path": ["api", "v1", "programs", "admin", "cohorts", ""]}
+          }
+        },
+        {
+          "name": "Create Cohort",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\"program_id\": 1, \"academic_year\": \"2024-2025\"}"},
+            "url": {"raw": "{{base_url}}/api/v1/programs/admin/cohorts/", "host": ["{{base_url}}"], "path": ["api", "v1", "programs", "admin", "cohorts", ""]}
+          }
+        },
+        {
+          "name": "List Courses",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{base_url}}/api/v1/programs/admin/courses/", "host": ["{{base_url}}"], "path": ["api", "v1", "programs", "admin", "courses", ""]}
+          }
+        },
+        {
+          "name": "Create Course",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\"program_id\": 1, \"code\": \"CS501\", \"title\": \"Advanced Algorithms\"}"},
+            "url": {"raw": "{{base_url}}/api/v1/programs/admin/courses/", "host": ["{{base_url}}"], "path": ["api", "v1", "programs", "admin", "courses", ""]}
+          }
+        },
+        {
+          "name": "List Semesters",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{base_url}}/api/v1/programs/admin/semesters/", "host": ["{{base_url}}"], "path": ["api", "v1", "programs", "admin", "semesters", ""]}
+          }
+        },
+        {
+          "name": "Create Semester",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\"cohort_id\": 1, \"name\": \"S1\"}"},
+            "url": {"raw": "{{base_url}}/api/v1/programs/admin/semesters/", "host": ["{{base_url}}"], "path": ["api", "v1", "programs", "admin", "semesters", ""]}
+          }
+        },
+        {
+          "name": "List Offerings",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{base_url}}/api/v1/programs/admin/offerings/", "host": ["{{base_url}}"], "path": ["api", "v1", "programs", "admin", "offerings", ""]}
+          }
+        },
+        {
+          "name": "Create Offering",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\"course_id\": 1, \"cohort_id\": 1, \"semester_id\": 1}"},
+            "url": {"raw": "{{base_url}}/api/v1/programs/admin/offerings/", "host": ["{{base_url}}"], "path": ["api", "v1", "programs", "admin", "offerings", ""]}
+          }
+        },
+        {
+          "name": "List Institutions",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{base_url}}/api/v1/institutions/admin/institutions/", "host": ["{{base_url}}"], "path": ["api", "v1", "institutions", "admin", "institutions", ""]}
+          }
+        },
+        {
+          "name": "Create Institution",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\"name\": \"LU\", \"country\": \"Lebanon\", \"type\": \"UNIVERSITY\", \"website\": \"\"}"},
+            "url": {"raw": "{{base_url}}/api/v1/institutions/admin/institutions/", "host": ["{{base_url}}"], "path": ["api", "v1", "institutions", "admin", "institutions", ""]}
+          }
+        },
+        {
+          "name": "Assign Major Coordinator",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\"coordinator_person_id\": 1, \"is_primary\": true}"},
+            "url": {"raw": "{{base_url}}/api/v1/programs/admin/majors/1/coordinators/", "host": ["{{base_url}}"], "path": ["api", "v1", "programs", "admin", "majors", "1", "coordinators", ""]}
           }
         },
         {

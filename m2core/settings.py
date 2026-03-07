@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "supervision",
     "publications",
     "registration",
+    "options",
 ]
 
 MIDDLEWARE = [

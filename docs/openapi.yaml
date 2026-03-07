@@ -181,11 +181,34 @@ paths:
                 $ref: '#/components/schemas/CreateTeacherResponse'
           description: ''
   /api/v1/auth/admin/users/:
+    get:
+      operationId: v1_auth_admin_users_retrieve
+      description: |-
+        GET /api/v1/auth/admin/users/
+        Admin only. List all users with roles and basic info.
+
+        POST /api/v1/auth/admin/users/
+        Admin only. Create user (delegates to CreateUserView).
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUserListResponse'
+          description: ''
     post:
       operationId: v1_auth_admin_users_create
       description: |-
-        POST /api/v1/admin/users/
-        Admin only. Creates User + Person with email and temporary password.
+        GET /api/v1/auth/admin/users/
+        Admin only. List all users with roles and basic info.
+
+        POST /api/v1/auth/admin/users/
+        Admin only. Create user (delegates to CreateUserView).
       tags:
       - v1
       requestBody:
@@ -210,6 +233,101 @@ paths:
               schema:
                 $ref: '#/components/schemas/CreateUserResponse'
           description: ''
+  /api/v1/auth/admin/users/{user_id}/:
+    get:
+      operationId: v1_auth_admin_users_retrieve_2
+      description: |-
+        GET /api/v1/auth/admin/users/<user_id>/
+        Admin only. Retrieve a single user with full details.
+
+        PUT /api/v1/auth/admin/users/<user_id>/
+        Admin only. Update user and person (email, full_name, password, is_active).
+
+        DELETE /api/v1/auth/admin/users/<user_id>/
+        Admin only. Delete user and related person.
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUserRetrieveResponse'
+          description: ''
+    put:
+      operationId: v1_auth_admin_users_update
+      description: |-
+        GET /api/v1/auth/admin/users/<user_id>/
+        Admin only. Retrieve a single user with full details.
+
+        PUT /api/v1/auth/admin/users/<user_id>/
+        Admin only. Update user and person (email, full_name, password, is_active).
+
+        DELETE /api/v1/auth/admin/users/<user_id>/
+        Admin only. Delete user and related person.
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUserUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminUserUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminUserUpdateRequest'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUserUpdateResponse'
+          description: ''
+    delete:
+      operationId: v1_auth_admin_users_destroy
+      description: |-
+        GET /api/v1/auth/admin/users/<user_id>/
+        Admin only. Retrieve a single user with full details.
+
+        PUT /api/v1/auth/admin/users/<user_id>/
+        Admin only. Update user and person (email, full_name, password, is_active).
+
+        DELETE /api/v1/auth/admin/users/<user_id>/
+        Admin only. Delete user and related person.
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
   /api/v1/auth/login/:
     post:
       operationId: v1_auth_login_create
@@ -236,36 +354,8 @@ paths:
         '200':
           content:
             application/json:
-            schema:
-              $ref: '#/components/schemas/LoginResponse'
-          description: ''
-  /api/v1/auth/register/guest/:
-    post:
-      operationId: v1_auth_register_guest_create
-      description: |-
-        POST /api/v1/auth/register/guest/
-        Public. Creates User + Person + GuestProfile. Client should then call login.
-      tags:
-      - v1
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/GuestRegisterRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/GuestRegisterRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/GuestRegisterRequest'
-        required: true
-      security: []
-      responses:
-        '201':
-          content:
-            application/json:
               schema:
-                $ref: '#/components/schemas/GuestRegisterResponse'
+                $ref: '#/components/schemas/LoginResponse'
           description: ''
   /api/v1/auth/me/:
     get:
@@ -337,6 +427,37 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProfileSettingsResponse'
+          description: ''
+  /api/v1/auth/register/guest/:
+    post:
+      operationId: v1_auth_register_guest_create
+      description: |-
+        POST /api/v1/auth/register/guest/
+        Public. Creates User + Person + GuestProfile. Client should then call login.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GuestRegisterRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GuestRegisterRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GuestRegisterRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuestRegisterResponse'
           description: ''
   /api/v1/auth/token/refresh/:
     post:
@@ -668,6 +789,972 @@ paths:
       parameters:
       - in: path
         name: experience_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/institutions/admin/institutions/:
+    get:
+      operationId: v1_institutions_admin_institutions_retrieve
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminInstitutionListResponse'
+          description: ''
+    post:
+      operationId: v1_institutions_admin_institutions_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminInstitutionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminInstitutionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminInstitutionRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminInstitutionItem'
+          description: ''
+  /api/v1/institutions/admin/institutions/{institution_id}/:
+    get:
+      operationId: v1_institutions_admin_institutions_retrieve_2
+      parameters:
+      - in: path
+        name: institution_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminInstitutionItem'
+          description: ''
+    put:
+      operationId: v1_institutions_admin_institutions_update
+      parameters:
+      - in: path
+        name: institution_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminInstitutionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminInstitutionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminInstitutionRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminInstitutionItem'
+          description: ''
+    delete:
+      operationId: v1_institutions_admin_institutions_destroy
+      parameters:
+      - in: path
+        name: institution_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/options/admin/:
+    get:
+      operationId: v1_options_admin_retrieve
+      description: |-
+        GET /api/v1/admin/options/
+        Admin only. Returns all options in one call (majors, programs, cohorts,
+        courses, semesters, institutions, institution_types, teachers).
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminOptionsResponse'
+          description: ''
+  /api/v1/options/cohorts/:
+    get:
+      operationId: v1_options_cohorts_retrieve
+      description: GET /api/v1/options/cohorts/ - Public. Returns cohorts for dropdowns.
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OptionsCohortsResponse'
+          description: ''
+  /api/v1/options/courses/:
+    get:
+      operationId: v1_options_courses_retrieve
+      description: GET /api/v1/options/courses/ - Public. Returns courses for dropdowns.
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OptionsCoursesResponse'
+          description: ''
+  /api/v1/options/institution-types/:
+    get:
+      operationId: v1_options_institution_types_retrieve
+      description: GET /api/v1/options/institution-types/ - Public. Returns institution
+        type enum.
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OptionsInstitutionTypesResponse'
+          description: ''
+  /api/v1/options/institutions/:
+    get:
+      operationId: v1_options_institutions_retrieve
+      description: GET /api/v1/options/institutions/ - Public. Returns institutions
+        for dropdowns.
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OptionsInstitutionsResponse'
+          description: ''
+  /api/v1/options/majors/:
+    get:
+      operationId: v1_options_majors_retrieve
+      description: GET /api/v1/options/majors/ - Public. Returns majors for dropdowns.
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OptionsMajorsResponse'
+          description: ''
+  /api/v1/options/programs/:
+    get:
+      operationId: v1_options_programs_retrieve
+      description: GET /api/v1/options/programs/ - Public. Returns programs for dropdowns.
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OptionsProgramsResponse'
+          description: ''
+  /api/v1/options/semesters/:
+    get:
+      operationId: v1_options_semesters_retrieve
+      description: GET /api/v1/options/semesters/ - Public. Returns semesters for
+        dropdowns.
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OptionsSemestersResponse'
+          description: ''
+  /api/v1/programs/admin/cohorts/:
+    get:
+      operationId: v1_programs_admin_cohorts_retrieve
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminCohortListResponse'
+          description: ''
+    post:
+      operationId: v1_programs_admin_cohorts_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminCohortRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminCohortRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminCohortRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminCohortItem'
+          description: ''
+  /api/v1/programs/admin/cohorts/{cohort_id}/:
+    get:
+      operationId: v1_programs_admin_cohorts_retrieve_2
+      parameters:
+      - in: path
+        name: cohort_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminCohortItem'
+          description: ''
+    put:
+      operationId: v1_programs_admin_cohorts_update
+      parameters:
+      - in: path
+        name: cohort_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminCohortRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminCohortRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminCohortRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminCohortItem'
+          description: ''
+    delete:
+      operationId: v1_programs_admin_cohorts_destroy
+      parameters:
+      - in: path
+        name: cohort_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/programs/admin/courses/:
+    get:
+      operationId: v1_programs_admin_courses_retrieve
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminCourseListResponse'
+          description: ''
+    post:
+      operationId: v1_programs_admin_courses_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminCourseRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminCourseRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminCourseRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminCourseItem'
+          description: ''
+  /api/v1/programs/admin/courses/{course_id}/:
+    get:
+      operationId: v1_programs_admin_courses_retrieve_2
+      parameters:
+      - in: path
+        name: course_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminCourseItem'
+          description: ''
+    put:
+      operationId: v1_programs_admin_courses_update
+      parameters:
+      - in: path
+        name: course_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminCourseRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminCourseRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminCourseRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminCourseItem'
+          description: ''
+    delete:
+      operationId: v1_programs_admin_courses_destroy
+      parameters:
+      - in: path
+        name: course_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/programs/admin/majors/:
+    get:
+      operationId: v1_programs_admin_majors_retrieve
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminMajorListResponse'
+          description: ''
+    post:
+      operationId: v1_programs_admin_majors_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminMajorRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminMajorRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminMajorRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminMajorItem'
+          description: ''
+  /api/v1/programs/admin/majors/{major_id}/:
+    get:
+      operationId: v1_programs_admin_majors_retrieve_2
+      parameters:
+      - in: path
+        name: major_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminMajorItem'
+          description: ''
+    put:
+      operationId: v1_programs_admin_majors_update
+      parameters:
+      - in: path
+        name: major_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminMajorRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminMajorRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminMajorRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminMajorItem'
+          description: ''
+    delete:
+      operationId: v1_programs_admin_majors_destroy
+      parameters:
+      - in: path
+        name: major_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/programs/admin/majors/{major_id}/coordinators/:
+    post:
+      operationId: v1_programs_admin_majors_coordinators_create
+      description: POST /api/v1/programs/admin/majors/<major_id>/coordinators/
+      parameters:
+      - in: path
+        name: major_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminMajorCoordinatorAssignRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminMajorCoordinatorAssignRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminMajorCoordinatorAssignRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          description: No response body
+        '200':
+          description: No response body
+  /api/v1/programs/admin/majors/{major_id}/coordinators/{person_id}/:
+    delete:
+      operationId: v1_programs_admin_majors_coordinators_destroy
+      description: DELETE /api/v1/programs/admin/majors/<major_id>/coordinators/<person_id>/
+      parameters:
+      - in: path
+        name: major_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: person_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/programs/admin/offerings/:
+    get:
+      operationId: v1_programs_admin_offerings_retrieve
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminOfferingListResponse'
+          description: ''
+    post:
+      operationId: v1_programs_admin_offerings_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminOfferingRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminOfferingRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminOfferingRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminOfferingItem'
+          description: ''
+  /api/v1/programs/admin/offerings/{offering_id}/:
+    get:
+      operationId: v1_programs_admin_offerings_retrieve_2
+      parameters:
+      - in: path
+        name: offering_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminOfferingItem'
+          description: ''
+    put:
+      operationId: v1_programs_admin_offerings_update
+      parameters:
+      - in: path
+        name: offering_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminOfferingRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminOfferingRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminOfferingRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminOfferingItem'
+          description: ''
+    delete:
+      operationId: v1_programs_admin_offerings_destroy
+      parameters:
+      - in: path
+        name: offering_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/programs/admin/programs/:
+    get:
+      operationId: v1_programs_admin_programs_retrieve
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProgramListResponse'
+          description: ''
+    post:
+      operationId: v1_programs_admin_programs_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminProgramRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminProgramRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminProgramRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProgramItem'
+          description: ''
+  /api/v1/programs/admin/programs/{program_id}/:
+    get:
+      operationId: v1_programs_admin_programs_retrieve_2
+      parameters:
+      - in: path
+        name: program_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProgramItem'
+          description: ''
+    put:
+      operationId: v1_programs_admin_programs_update
+      parameters:
+      - in: path
+        name: program_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminProgramRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminProgramRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminProgramRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProgramItem'
+          description: ''
+    delete:
+      operationId: v1_programs_admin_programs_destroy
+      parameters:
+      - in: path
+        name: program_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/programs/admin/semesters/:
+    get:
+      operationId: v1_programs_admin_semesters_retrieve
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminSemesterListResponse'
+          description: ''
+    post:
+      operationId: v1_programs_admin_semesters_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminSemesterRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminSemesterRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminSemesterRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminSemesterItem'
+          description: ''
+  /api/v1/programs/admin/semesters/{semester_id}/:
+    get:
+      operationId: v1_programs_admin_semesters_retrieve_2
+      parameters:
+      - in: path
+        name: semester_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminSemesterItem'
+          description: ''
+    put:
+      operationId: v1_programs_admin_semesters_update
+      parameters:
+      - in: path
+        name: semester_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminSemesterRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminSemesterRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminSemesterRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminSemesterItem'
+          description: ''
+    delete:
+      operationId: v1_programs_admin_semesters_destroy
+      parameters:
+      - in: path
+        name: semester_id
         schema:
           type: integer
         required: true
@@ -1088,6 +2175,524 @@ paths:
           description: ''
 components:
   schemas:
+    AdminCohortItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        program_id:
+          type: integer
+        program_name:
+          type: string
+        academic_year:
+          type: string
+        major_id:
+          type: integer
+          nullable: true
+        major_code:
+          type: string
+          nullable: true
+      required:
+      - academic_year
+      - id
+      - major_code
+      - major_id
+      - program_id
+      - program_name
+    AdminCohortListResponse:
+      type: object
+      properties:
+        cohorts:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminCohortItem'
+      required:
+      - cohorts
+    AdminCohortRequest:
+      type: object
+      properties:
+        program_id:
+          type: integer
+        academic_year:
+          type: string
+          maxLength: 32
+      required:
+      - academic_year
+      - program_id
+    AdminCourseItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        program_id:
+          type: integer
+        program_name:
+          type: string
+        code:
+          type: string
+        title:
+          type: string
+        major_id:
+          type: integer
+          nullable: true
+        major_code:
+          type: string
+          nullable: true
+      required:
+      - code
+      - id
+      - major_code
+      - major_id
+      - program_id
+      - program_name
+      - title
+    AdminCourseListResponse:
+      type: object
+      properties:
+        courses:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminCourseItem'
+      required:
+      - courses
+    AdminCourseRequest:
+      type: object
+      properties:
+        program_id:
+          type: integer
+        code:
+          type: string
+          maxLength: 64
+        title:
+          type: string
+          maxLength: 255
+      required:
+      - code
+      - program_id
+      - title
+    AdminInstitutionItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        country:
+          type: string
+        type:
+          type: string
+        website:
+          type: string
+          format: uri
+      required:
+      - country
+      - id
+      - name
+      - type
+      - website
+    AdminInstitutionListResponse:
+      type: object
+      properties:
+        institutions:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminInstitutionItem'
+      required:
+      - institutions
+    AdminInstitutionRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        country:
+          type: string
+          maxLength: 128
+        type:
+          $ref: '#/components/schemas/AdminInstitutionRequestTypeEnum'
+        website:
+          type: string
+          format: uri
+          default: ''
+      required:
+      - country
+      - name
+      - type
+    AdminInstitutionRequestTypeEnum:
+      enum:
+      - UNIVERSITY
+      - LAB
+      - COMPANY
+      - HOSPITAL
+      - OTHER
+      type: string
+      description: |-
+        * `UNIVERSITY` - UNIVERSITY
+        * `LAB` - LAB
+        * `COMPANY` - COMPANY
+        * `HOSPITAL` - HOSPITAL
+        * `OTHER` - OTHER
+    AdminMajorCoordinatorAssignRequest:
+      type: object
+      properties:
+        coordinator_person_id:
+          type: integer
+        is_primary:
+          type: boolean
+          default: false
+      required:
+      - coordinator_person_id
+    AdminMajorItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        code:
+          type: string
+        name:
+          type: string
+      required:
+      - code
+      - id
+      - name
+    AdminMajorListResponse:
+      type: object
+      properties:
+        majors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminMajorItem'
+      required:
+      - majors
+    AdminMajorRequest:
+      type: object
+      properties:
+        code:
+          type: string
+          maxLength: 32
+        name:
+          type: string
+          maxLength: 255
+      required:
+      - code
+      - name
+    AdminOfferingItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        course_id:
+          type: integer
+        course_code:
+          type: string
+        course_title:
+          type: string
+        cohort_id:
+          type: integer
+        cohort_academic_year:
+          type: string
+        semester_id:
+          type: integer
+        semester_name:
+          type: string
+        teacher_id:
+          type: integer
+          nullable: true
+        teacher_name:
+          type: string
+          nullable: true
+      required:
+      - cohort_academic_year
+      - cohort_id
+      - course_code
+      - course_id
+      - course_title
+      - id
+      - semester_id
+      - semester_name
+      - teacher_id
+      - teacher_name
+    AdminOfferingListResponse:
+      type: object
+      properties:
+        offerings:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminOfferingItem'
+      required:
+      - offerings
+    AdminOfferingRequest:
+      type: object
+      properties:
+        course_id:
+          type: integer
+        cohort_id:
+          type: integer
+        semester_id:
+          type: integer
+        teacher_id:
+          type: integer
+          nullable: true
+      required:
+      - cohort_id
+      - course_id
+      - semester_id
+    AdminOptionsResponse:
+      type: object
+      properties:
+        majors:
+          type: array
+          items:
+            $ref: '#/components/schemas/OptionMajorItem'
+        programs:
+          type: array
+          items:
+            $ref: '#/components/schemas/OptionProgramItem'
+        cohorts:
+          type: array
+          items:
+            $ref: '#/components/schemas/OptionCohortItem'
+        courses:
+          type: array
+          items:
+            $ref: '#/components/schemas/OptionCourseItem'
+        semesters:
+          type: array
+          items:
+            $ref: '#/components/schemas/OptionSemesterItem'
+        institutions:
+          type: array
+          items:
+            $ref: '#/components/schemas/OptionInstitutionItem'
+        institution_types:
+          type: array
+          items:
+            $ref: '#/components/schemas/OptionInstitutionTypeItem'
+        teachers:
+          type: array
+          items:
+            $ref: '#/components/schemas/OptionTeacherItem'
+      required:
+      - cohorts
+      - courses
+      - institution_types
+      - institutions
+      - majors
+      - programs
+      - semesters
+      - teachers
+    AdminProgramItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        university:
+          type: string
+        degree_level:
+          type: string
+        major_id:
+          type: integer
+          nullable: true
+        major_code:
+          type: string
+          nullable: true
+      required:
+      - degree_level
+      - id
+      - major_code
+      - major_id
+      - name
+      - university
+    AdminProgramListResponse:
+      type: object
+      properties:
+        programs:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminProgramItem'
+      required:
+      - programs
+    AdminProgramRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        university:
+          type: string
+          maxLength: 255
+        degree_level:
+          type: string
+          maxLength: 64
+        major_id:
+          type: integer
+          nullable: true
+      required:
+      - degree_level
+      - name
+      - university
+    AdminSemesterItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        cohort_id:
+          type: integer
+        cohort_academic_year:
+          type: string
+        program_name:
+          type: string
+        name:
+          type: string
+      required:
+      - cohort_academic_year
+      - cohort_id
+      - id
+      - name
+      - program_name
+    AdminSemesterListResponse:
+      type: object
+      properties:
+        semesters:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminSemesterItem'
+      required:
+      - semesters
+    AdminSemesterRequest:
+      type: object
+      properties:
+        cohort_id:
+          type: integer
+        name:
+          type: string
+          maxLength: 64
+      required:
+      - cohort_id
+      - name
+    AdminUserListItem:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        person_id:
+          type: integer
+          nullable: true
+        email:
+          type: string
+          format: email
+        full_name:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+        is_staff:
+          type: boolean
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - created_at
+      - email
+      - full_name
+      - is_active
+      - is_staff
+      - person_id
+      - roles
+      - user_id
+    AdminUserListResponse:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminUserListItem'
+      required:
+      - users
+    AdminUserRetrieveResponse:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        person_id:
+          type: integer
+          nullable: true
+        email:
+          type: string
+          format: email
+        full_name:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+        is_staff:
+          type: boolean
+        is_active:
+          type: boolean
+        is_superuser:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - created_at
+      - email
+      - full_name
+      - is_active
+      - is_staff
+      - is_superuser
+      - person_id
+      - roles
+      - updated_at
+      - user_id
+    AdminUserUpdateRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        full_name:
+          type: string
+          maxLength: 255
+        password:
+          type: string
+          writeOnly: true
+          minLength: 8
+        is_active:
+          type: boolean
+    AdminUserUpdateResponse:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        person_id:
+          type: integer
+          nullable: true
+        email:
+          type: string
+          format: email
+        full_name:
+          type: string
+        is_active:
+          type: boolean
+      required:
+      - email
+      - full_name
+      - is_active
+      - person_id
+      - user_id
     CommunityCommentItem:
       type: object
       properties:
@@ -1567,44 +3172,6 @@ components:
       - full_name
       - person_id
       - user_id
-    GuestRegisterRequest:
-      type: object
-      properties:
-        email:
-          type: string
-          format: email
-        password:
-          type: string
-          writeOnly: true
-          minLength: 8
-        full_name:
-          type: string
-          maxLength: 255
-        note:
-          type: string
-          maxLength: 255
-          default: ''
-      required:
-      - email
-      - full_name
-      - password
-    GuestRegisterResponse:
-      type: object
-      properties:
-        user_id:
-          type: integer
-        person_id:
-          type: integer
-        email:
-          type: string
-          format: email
-        full_name:
-          type: string
-      required:
-      - email
-      - full_name
-      - person_id
-      - user_id
     ExperienceItem:
       type: object
       properties:
@@ -1655,6 +3222,44 @@ components:
       - supervisor_name
       - title
       - type
+    GuestRegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          writeOnly: true
+          minLength: 8
+        full_name:
+          type: string
+          maxLength: 255
+        note:
+          type: string
+          default: ''
+          maxLength: 255
+      required:
+      - email
+      - full_name
+      - password
+    GuestRegisterResponse:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        person_id:
+          type: integer
+        email:
+          type: string
+          format: email
+        full_name:
+          type: string
+      required:
+      - email
+      - full_name
+      - person_id
+      - user_id
     LoginRequest:
       type: object
       properties:
@@ -1687,7 +3292,6 @@ components:
           type: array
           items:
             type: string
-          description: Actor roles (e.g. student, alumni, teacher, guest, coordinator, admin)
         access_token:
           type: string
         refresh_token:
@@ -1981,6 +3585,227 @@ components:
     NullEnum:
       enum:
       - null
+    OptionCohortItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        program_id:
+          type: integer
+        program_name:
+          type: string
+        academic_year:
+          type: string
+        major_id:
+          type: integer
+          nullable: true
+        major_code:
+          type: string
+          nullable: true
+      required:
+      - academic_year
+      - id
+      - major_code
+      - major_id
+      - program_id
+      - program_name
+    OptionCourseItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        program_id:
+          type: integer
+        program_name:
+          type: string
+        code:
+          type: string
+        title:
+          type: string
+        major_id:
+          type: integer
+          nullable: true
+        major_code:
+          type: string
+          nullable: true
+      required:
+      - code
+      - id
+      - major_code
+      - major_id
+      - program_id
+      - program_name
+      - title
+    OptionInstitutionItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        country:
+          type: string
+        type:
+          type: string
+        website:
+          type: string
+          format: uri
+      required:
+      - country
+      - id
+      - name
+      - type
+      - website
+    OptionInstitutionTypeItem:
+      type: object
+      properties:
+        value:
+          type: string
+        label:
+          type: string
+      required:
+      - label
+      - value
+    OptionMajorItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        code:
+          type: string
+        name:
+          type: string
+      required:
+      - code
+      - id
+      - name
+    OptionProgramItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        university:
+          type: string
+        degree_level:
+          type: string
+        major_id:
+          type: integer
+          nullable: true
+        major_code:
+          type: string
+          nullable: true
+      required:
+      - degree_level
+      - id
+      - major_code
+      - major_id
+      - name
+      - university
+    OptionSemesterItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        cohort_id:
+          type: integer
+        cohort_academic_year:
+          type: string
+        program_name:
+          type: string
+        name:
+          type: string
+      required:
+      - cohort_academic_year
+      - cohort_id
+      - id
+      - name
+      - program_name
+    OptionTeacherItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: person_id, use as teacher_id in offering
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        title:
+          type: string
+        department:
+          type: string
+      required:
+      - department
+      - email
+      - id
+      - name
+      - title
+    OptionsCohortsResponse:
+      type: object
+      properties:
+        cohorts:
+          type: array
+          items:
+            $ref: '#/components/schemas/OptionCohortItem'
+      required:
+      - cohorts
+    OptionsCoursesResponse:
+      type: object
+      properties:
+        courses:
+          type: array
+          items:
+            $ref: '#/components/schemas/OptionCourseItem'
+      required:
+      - courses
+    OptionsInstitutionTypesResponse:
+      type: object
+      properties:
+        institution_types:
+          type: array
+          items:
+            $ref: '#/components/schemas/OptionInstitutionTypeItem'
+      required:
+      - institution_types
+    OptionsInstitutionsResponse:
+      type: object
+      properties:
+        institutions:
+          type: array
+          items:
+            $ref: '#/components/schemas/OptionInstitutionItem'
+      required:
+      - institutions
+    OptionsMajorsResponse:
+      type: object
+      properties:
+        majors:
+          type: array
+          items:
+            $ref: '#/components/schemas/OptionMajorItem'
+      required:
+      - majors
+    OptionsProgramsResponse:
+      type: object
+      properties:
+        programs:
+          type: array
+          items:
+            $ref: '#/components/schemas/OptionProgramItem'
+      required:
+      - programs
+    OptionsSemestersResponse:
+      type: object
+      properties:
+        semesters:
+          type: array
+          items:
+            $ref: '#/components/schemas/OptionSemesterItem'
+      required:
+      - semesters
     PendingSessionItem:
       type: object
       properties:
