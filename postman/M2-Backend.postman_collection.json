@@ -248,7 +248,7 @@
             },
             "description": "Requires JWT. Deletes an existing Experience that belongs to the current person. Replace 1 with experience id."
           }
-        }
+        },
         {
           "name": "Create Teacher",
           "request": {
@@ -418,7 +418,7 @@
     },
     {
       "name": "Registration",
-      "description": "Question flow: 1) GET state → use response.question (question_key, question_type, label, options/fields) to render the form. 2) POST answer with body key = question.question_key. 3) Response includes question for the next step; repeat until question.question_type is \"submit\". 4) POST submit with {} to finish. Validation: major_id must be an existing Major id; institution_name must match an existing Institution name.",
+      "description": "**Pattern: one answer per request.** 1) GET state → use response.question (question_key, question_type, label, options or fields with options for selects) to render the form. 2) POST answer with body key = question.question_key. For yes/no steps send only the yes/no (e.g. {\"has_internship\": true}); the next step will be the data form — then POST only that data (e.g. {\"internship_data\": {...}}). 3) Response includes question for next step; repeat until question_type is \"submit\". 4) POST submit with {} to finish. Selection fields (major, cohort_year, graduation_year) have type \"select\" and options in question.fields[].options.",
       "item": [
         {
           "name": "Get Registration State",
@@ -489,13 +489,31 @@
             "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"has_internship\": true,\n  \"internship_data\": {\n    \"institution_name\": \"Sorbonne University\",\n    \"department\": \"Research Lab\",\n    \"country\": \"France\",\n    \"start_date\": \"2024-01-01\",\n    \"end_date\": \"2024-06-30\"\n  }\n}"
+              "raw": "{\n  \"has_internship\": true\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/v1/registration/answer/",
               "host": ["{{base_url}}"],
               "path": ["api", "v1", "registration", "answer", ""]
-            }
+            },
+            "description": "Yes/no only. Next step will be COLLECT_INTERNSHIP; then POST internship_data in a separate request."
+          }
+        },
+        {
+          "name": "Answer - Collect Internship Data",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"internship_data\": {\n    \"institution_name\": \"Sorbonne University\",\n    \"department\": \"Research Lab\",\n    \"country\": \"France\",\n    \"start_date\": \"2024-01-01\",\n    \"end_date\": \"2024-06-30\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/registration/answer/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "registration", "answer", ""]
+            },
+            "description": "Call when current_step is COLLECT_INTERNSHIP (after answering has_internship: true or had_internship: true)."
           }
         },
         {
@@ -509,6 +527,20 @@
               "host": ["{{base_url}}"],
               "path": ["api", "v1", "registration", "answer", ""]
             }
+          }
+        },
+        {
+          "name": "Answer - Q2 Internship Alumni: Yes",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"had_internship\": true\n}"},
+            "url": {
+              "raw": "{{base_url}}/api/v1/registration/answer/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "registration", "answer", ""]
+            },
+            "description": "Yes/no only. Next step COLLECT_INTERNSHIP; then POST internship_data separately."
           }
         },
         {
@@ -531,13 +563,31 @@
             "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"is_phd_student\": true,\n  \"phd_data\": {\n    \"institution_name\": \"Sorbonne University\",\n    \"field\": \"Machine Learning\",\n    \"lab_name\": \"AI Lab\",\n    \"start_date\": \"2024-09-01\",\n    \"end_date\": null\n  }\n}"
+              "raw": "{\n  \"is_phd_student\": true\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/v1/registration/answer/",
               "host": ["{{base_url}}"],
               "path": ["api", "v1", "registration", "answer", ""]
-            }
+            },
+            "description": "Yes/no only. Next step COLLECT_PHD; then POST phd_data separately."
+          }
+        },
+        {
+          "name": "Answer - Collect PhD Data",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phd_data\": {\n    \"institution_name\": \"Sorbonne University\",\n    \"field\": \"Machine Learning\",\n    \"lab_name\": \"AI Lab\",\n    \"start_date\": \"2024-09-01\",\n    \"end_date\": null\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/registration/answer/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "registration", "answer", ""]
+            },
+            "description": "Call when current_step is COLLECT_PHD (after answering is_phd_student: true)."
           }
         },
         {
@@ -560,13 +610,31 @@
             "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"is_working\": true,\n  \"work_data\": {\n    \"institution_name\": \"Sorbonne University\",\n    \"title\": \"Data Scientist\",\n    \"country\": \"France\",\n    \"start_date\": \"2024-01-01\",\n    \"end_date\": null\n  }\n}"
+              "raw": "{\n  \"is_working\": true\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/v1/registration/answer/",
               "host": ["{{base_url}}"],
               "path": ["api", "v1", "registration", "answer", ""]
-            }
+            },
+            "description": "Yes/no only. Next step COLLECT_WORK; then POST work_data separately."
+          }
+        },
+        {
+          "name": "Answer - Collect Work Data",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"work_data\": {\n    \"institution_name\": \"Sorbonne University\",\n    \"title\": \"Data Scientist\",\n    \"country\": \"France\",\n    \"start_date\": \"2024-01-01\",\n    \"end_date\": null\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/registration/answer/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "registration", "answer", ""]
+            },
+            "description": "Call when current_step is COLLECT_WORK (after answering is_working: true)."
           }
         },
         {

@@ -1,3 +1,4 @@
+import copy
 import logging
 
 from drf_spectacular.utils import extend_schema
@@ -8,6 +9,7 @@ from rest_framework.views import APIView
 
 from core.models import Person
 from registration.enums import RegistrationStep
+from registration.helpers.registration_options import enrich_question_with_options
 from registration.helpers.state_machine import (get_base_role_from_q1,
                                                 get_next_step,
                                                 get_required_answer_key)
@@ -68,31 +70,7 @@ class RegistrationAnswerView(APIView):
                         },
                         status=status.HTTP_400_BAD_REQUEST,
                     )
-                # For yes/no steps that can have nested data, require nested data when True
-                if session.current_step == RegistrationStep.Q2_INTERNSHIP.value:
-                    if data.get("has_internship") is True and data.get("internship_data") is None:
-                        return Response(
-                            {"detail": "internship_data required when has_internship is true"},
-                            status=status.HTTP_400_BAD_REQUEST,
-                        )
-                if session.current_step == RegistrationStep.Q2_INTERNSHIP_ALUMNI.value:
-                    if data.get("had_internship") is True and data.get("internship_data") is None:
-                        return Response(
-                            {"detail": "internship_data required when had_internship is true"},
-                            status=status.HTTP_400_BAD_REQUEST,
-                        )
-                if session.current_step == RegistrationStep.Q3_PHD.value:
-                    if data.get("is_phd_student") is True and data.get("phd_data") is None:
-                        return Response(
-                            {"detail": "phd_data required when is_phd_student is true"},
-                            status=status.HTTP_400_BAD_REQUEST,
-                        )
-                if session.current_step == RegistrationStep.Q4_WORK.value:
-                    if data.get("is_working") is True and data.get("work_data") is None:
-                        return Response(
-                            {"detail": "work_data required when is_working is true"},
-                            status=status.HTTP_400_BAD_REQUEST,
-                        )
+                # Yes/no only: nested data (internship_data, phd_data, work_data) is collected on the next step.
             else:
                 if data.get(required_key) is None:
                     return Response(
@@ -151,6 +129,8 @@ class RegistrationAnswerView(APIView):
         session.save(update_fields=["current_step", "payload", "base_role", "updated_at"])
 
         question_def = get_question_definition(session.current_step)
+        if question_def:
+            question_def = enrich_question_with_options(copy.deepcopy(question_def))
         resp_serializer = RegistrationAnswerResponseSerializer(
             {
                 "current_step": session.current_step,

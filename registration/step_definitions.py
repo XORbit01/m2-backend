@@ -60,9 +60,23 @@ STEP_DEFINITIONS = {
         "description": None,
         "required": True,
         "fields": [
-            {"key": "major_id", "type": "number", "label": "Major", "required": True},
+            {
+                "key": "major_id",
+                "type": QUESTION_TYPE_SELECT,
+                "label": "Major",
+                "required": True,
+                "options_source": "majors",
+                "value_type": "number",
+            },
             {"key": "student_number", "type": "text", "label": "Student number", "required": True},
-            {"key": "cohort_year", "type": "text", "label": "Cohort year", "required": True},
+            {
+                "key": "cohort_year",
+                "type": QUESTION_TYPE_SELECT,
+                "label": "Cohort year",
+                "required": True,
+                "options_source": "cohort_years",
+                "value_type": "string",
+            },
         ],
     },
     RegistrationStep.COLLECT_ALUMNI_DATA.value: {
@@ -72,8 +86,22 @@ STEP_DEFINITIONS = {
         "description": None,
         "required": True,
         "fields": [
-            {"key": "graduation_year", "type": "text", "label": "Graduation year", "required": True},
-            {"key": "major_id", "type": "number", "label": "Major", "required": True},
+            {
+                "key": "graduation_year",
+                "type": QUESTION_TYPE_SELECT,
+                "label": "Graduation year",
+                "required": True,
+                "options_source": "graduation_years",
+                "value_type": "string",
+            },
+            {
+                "key": "major_id",
+                "type": QUESTION_TYPE_SELECT,
+                "label": "Major",
+                "required": True,
+                "options_source": "majors",
+                "value_type": "number",
+            },
         ],
     },
     RegistrationStep.Q2_INTERNSHIP.value: {

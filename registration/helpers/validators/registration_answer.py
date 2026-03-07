@@ -39,22 +39,6 @@ def validate_registration_answer(current_step: str, data: dict) -> dict | None:
             if err:
                 errors["internship_data.institution_name"] = err
 
-    if current_step == RegistrationStep.Q2_INTERNSHIP.value:
-        if data.get("has_internship") is True:
-            internship = data.get("internship_data")
-            if internship and isinstance(internship, dict):
-                err = validate_institution_name(internship.get("institution_name"))
-                if err:
-                    errors["internship_data.institution_name"] = err
-
-    if current_step == RegistrationStep.Q2_INTERNSHIP_ALUMNI.value:
-        if data.get("had_internship") is True:
-            internship = data.get("internship_data")
-            if internship and isinstance(internship, dict):
-                err = validate_institution_name(internship.get("institution_name"))
-                if err:
-                    errors["internship_data.institution_name"] = err
-
     if current_step == RegistrationStep.COLLECT_PHD.value:
         phd = data.get("phd_data")
         if phd and isinstance(phd, dict):
@@ -62,27 +46,11 @@ def validate_registration_answer(current_step: str, data: dict) -> dict | None:
             if err:
                 errors["phd_data.institution_name"] = err
 
-    if current_step == RegistrationStep.Q3_PHD.value:
-        if data.get("is_phd_student") is True:
-            phd = data.get("phd_data")
-            if phd and isinstance(phd, dict):
-                err = validate_institution_name(phd.get("institution_name"))
-                if err:
-                    errors["phd_data.institution_name"] = err
-
     if current_step == RegistrationStep.COLLECT_WORK.value:
         work = data.get("work_data")
         if work and isinstance(work, dict):
             err = validate_institution_name(work.get("institution_name"))
             if err:
                 errors["work_data.institution_name"] = err
-
-    if current_step == RegistrationStep.Q4_WORK.value:
-        if data.get("is_working") is True:
-            work = data.get("work_data")
-            if work and isinstance(work, dict):
-                err = validate_institution_name(work.get("institution_name"))
-                if err:
-                    errors["work_data.institution_name"] = err
 
     return errors if errors else None

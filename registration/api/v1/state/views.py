@@ -1,3 +1,5 @@
+import copy
+
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -6,6 +8,7 @@ from rest_framework.views import APIView
 
 from core.models import Person
 from registration.enums import RegistrationStep
+from registration.helpers.registration_options import enrich_question_with_options
 from registration.models import RegistrationSession
 from registration.serializers.state.response import \
     RegistrationStateResponseSerializer
@@ -37,6 +40,8 @@ class RegistrationStateView(APIView):
             session.current_step, session.current_step
         )
         question_def = get_question_definition(session.current_step)
+        if question_def:
+            question_def = enrich_question_with_options(copy.deepcopy(question_def))
         next_key = (
             question_def.get("question_key") if question_def else _next_question_key(session.current_step)
         )
