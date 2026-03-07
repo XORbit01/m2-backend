@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "M2 Backend",
-    "description": "M2 Master's registration API. Run Login first — tokens are auto-saved. All protected requests use Bearer auth.\n\n## Workflow notes\n\n**Auth**\n1. Login (email + password) → tokens saved automatically\n2. Token Refresh when access_token expires\n3. Me → current user + registration status\n\n**Admin setup**\n1. Login as admin (superuser)\n2. Create User → for students (email, password, full_name)\n3. Create Teacher → for teachers (email, password, full_name, title, department, is_supervisor)\n\n**Student registration**\n1. Admin creates user OR user registers\n2. Login as student\n3. GET state → get current_step + question\n4. POST answer (repeat) → body key = question.question_key\n5. POST submit when question_type = submit → status SUBMITTED (awaiting coordinator)\n\n**Coordinator – registration verification**\n1. Login as coordinator (Person must be MajorCoordinator for a major)\n2. List Pending → sessions with status SUBMITTED for their major(s)\n3. Accept or Reject (session_id in path)\n4. Accept → status ACCEPTED, profiles/experiences created; Reject → session deleted\n\n**Coordinator – course assignment**\n1. Login as coordinator\n2. List Offerings → course offerings for programs in their major(s) (Program.major must be set)\n3. List Teachers → all teachers (for dropdown)\n4. List Students → students in their major(s); List Cohorts → cohorts for their major(s)\n5. Assign Teacher → POST offering_id in path, teacher_id (person_id) in body\n\n**Teacher**\n1. Login as teacher (assigned to offerings)\n2. List Course Students → GET teacher/courses/<offering_id>/students/",
+    "description": "M2 Master's registration API. Run Login first — tokens are auto-saved. All protected requests use Bearer auth.\n\n## Workflow notes\n\n**Auth**\n1. Register Guest (public) → creates User + Person + GuestProfile; then Login\n2. Login (email + password) → tokens saved automatically\n3. Token Refresh when access_token expires\n4. Me → current user + registration status\n\n**Admin setup**\n1. Login as admin (superuser)\n2. Create User → for students (email, password, full_name)\n3. Create Teacher → for teachers (email, password, full_name, title, department, is_supervisor)\n\n**Student registration**\n1. Admin creates user OR user registers\n2. Login as student\n3. GET state → get current_step + question\n4. POST answer (repeat) → body key = question.question_key\n5. POST submit when question_type = submit → status SUBMITTED (awaiting coordinator)\n\n**Coordinator – registration verification**\n1. Login as coordinator (Person must be MajorCoordinator for a major)\n2. List Pending → sessions with status SUBMITTED for their major(s)\n3. Accept or Reject (session_id in path)\n4. Accept → status ACCEPTED, profiles/experiences created; Reject → session deleted\n\n**Coordinator – course assignment**\n1. Login as coordinator\n2. List Offerings → course offerings for programs in their major(s) (Program.major must be set)\n3. List Teachers → all teachers (for dropdown)\n4. List Students → students in their major(s); List Cohorts → cohorts for their major(s)\n5. Assign Teacher → POST offering_id in path, teacher_id (person_id) in body\n\n**Teacher**\n1. Login as teacher (assigned to offerings)\n2. List Course Students → GET teacher/courses/<offering_id>/students/",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -130,6 +130,24 @@
                 }
               }
             ]
+          }
+        },
+        {
+          "name": "Register Guest",
+          "request": {
+            "auth": {"type": "noauth"},
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"guest@example.com\",\n  \"password\": \"GuestPass123\",\n  \"full_name\": \"Guest User\",\n  \"note\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/register/guest/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "register", "guest", ""]
+            },
+            "description": "Public. Creates User + Person + GuestProfile. Then call Login to get tokens."
           }
         },
         {

@@ -2,7 +2,7 @@
 JWT authentication middleware for API endpoints.
 
 Validates Bearer token on /api/ requests and sets request.user.
-Skips public paths: login, token refresh, schema, docs.
+Skips public paths: login, guest registration, token refresh, schema, docs.
 """
 
 import logging
@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 # Paths that do not require JWT (public endpoints)
 JWT_SKIP_PATHS = (
     "/api/v1/auth/login/",
+    "/api/v1/auth/register/guest/",
     "/api/v1/auth/token/refresh/",
     "/api/schema/",
     "/api/docs/",

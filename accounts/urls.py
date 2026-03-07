@@ -4,6 +4,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from accounts.views import (
     CreateTeacherView,
     CreateUserView,
+    GuestRegisterView,
     LoginView,
     MeView,
     ProfileSettingsView,
@@ -13,6 +14,7 @@ app_name = "accounts"
 
 urlpatterns = [
     path("login/", LoginView.as_view(), name="login"),
+    path("register/guest/", GuestRegisterView.as_view(), name="register-guest"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token-refresh"),
     path("me/", MeView.as_view(), name="me"),
     path("profile/", ProfileSettingsView.as_view(), name="profile-settings"),
